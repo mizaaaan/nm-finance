@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { demoData } from '../lib/demoData'
 
 class ApiError extends Error {
@@ -14,6 +14,7 @@ class ApiError extends Error {
 //    or the SPA fallback returns HTML), fall back to clearly-labelled sample data.
 export function useDashboard(month) {
   const [state, setState] = useState({ status: 'loading', data: null, isDemo: false, error: null })
+  const [tick, setTick] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -55,7 +56,9 @@ export function useDashboard(month) {
       clearTimeout(timer)
       controller.abort()
     }
-  }, [month])
+  }, [month, tick])
 
-  return state
+  const refetch = useCallback(() => setTick((t) => t + 1), [])
+
+  return { ...state, refetch }
 }

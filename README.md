@@ -14,9 +14,29 @@ and per-member investment/dividend history.
 No external services beyond GitHub + Netlify.
 
 ## Status
-All four screens are built: Dashboard, Ledger (full CRUD + filters), Members, and
-Cars. Backed by Netlify Functions (`/api/dashboard`, `/api/members`, `/api/cars`,
-`/api/transactions`, `/api/init`) against Netlify DB.
+**Live at https://nm-finance.netlify.app**
+
+All four screens are built and deployed: Dashboard, Ledger (full CRUD + filters),
+Members, and Cars. Backed by Netlify Functions (`/api/dashboard`, `/api/members`,
+`/api/cars`, `/api/transactions`, `/api/init`) against Netlify DB. The database
+schema is applied and a small set of sample members/cars/transactions has been
+seeded so the app is viewable immediately — delete them from the UI anytime.
+
+Netlify Identity is enabled (open sign-up, email confirmation on).
+
+## API
+
+| Endpoint | Methods | Purpose |
+| --- | --- | --- |
+| `/api/dashboard?month=YYYY-MM` | GET | Aggregates for the dashboard |
+| `/api/members` | GET, POST | List / create members |
+| `/api/members/:id` | PATCH, DELETE | Update / delete a member |
+| `/api/cars` | GET, POST | List / create cars |
+| `/api/cars/:id` | PATCH, DELETE | Update / delete a car |
+| `/api/transactions?type=&month=&category=` | GET | List / filter transactions |
+| `/api/transactions` | POST | Create a transaction |
+| `/api/transactions/:id` | PATCH, DELETE | Update / delete a transaction |
+| `/api/init` | POST | Apply the schema idempotently |
 
 ## Dashboard
 

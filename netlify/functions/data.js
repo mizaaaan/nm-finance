@@ -56,7 +56,11 @@ async function withDb(handler) {
 
 async function membersRoute(sql, method, id, body) {
   if (method === 'GET') {
-    const rows = await sql`SELECT * FROM members ORDER BY name`
+    const rows = await sql`
+      SELECT id, name, email, phone, role,
+        to_char(joined_date, 'YYYY-MM-DD') AS joined_date, created_at
+      FROM members ORDER BY name
+    `
     return json({ members: rows.map(camelize) })
   }
   if (method === 'POST') {
@@ -91,7 +95,11 @@ async function membersRoute(sql, method, id, body) {
 
 async function carsRoute(sql, method, id, body) {
   if (method === 'GET') {
-    const rows = await sql`SELECT * FROM cars ORDER BY name`
+    const rows = await sql`
+      SELECT id, name, registration_no, purchase_price,
+        to_char(purchase_date, 'YYYY-MM-DD') AS purchase_date, status, created_at
+      FROM cars ORDER BY name
+    `
     return json({ cars: rows.map(camelize) })
   }
   if (method === 'POST') {
@@ -143,7 +151,11 @@ async function transactionsRoute(sql, method, id, req, body) {
     const where = conditions.length ? sql`WHERE ${sql(conditions, ' AND ')}` : sql``
 
     const rows = await sql`
-      SELECT t.*, m.name AS member_name, c.name AS car_name
+      SELECT
+        t.id, t.type, t.category, t.amount,
+        to_char(t.txn_date, 'YYYY-MM-DD') AS txn_date,
+        t.description, t.car_id, t.member_id, t.created_by,
+        m.name AS member_name, c.name AS car_name
       FROM transactions t
       LEFT JOIN members m ON m.id = t.member_id
       LEFT JOIN cars c ON c.id = t.car_id
