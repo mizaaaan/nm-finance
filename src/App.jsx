@@ -1,15 +1,44 @@
+import { lazy, Suspense } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import RequireAuth from './components/RequireAuth'
+import LoginPage from './pages/LoginPage'
+import Splash from './components/Splash'
+
+// Code-split heavier pages (recharts & CRUD screens) so the login bundle stays lean.
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Ledger = lazy(() => import('./pages/Ledger'))
+const Members = lazy(() => import('./pages/Members'))
+const Cars = lazy(() => import('./pages/Cars'))
+
+const protectedRoutes = [
+  { path: '/', element: <Dashboard /> },
+  { path: '/ledger', element: <Ledger /> },
+  { path: '/members', element: <Members /> },
+  { path: '/cars', element: <Cars /> }
+]
+
 export default function App() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6">
-      <div className="max-w-md text-center">
-        <p className="tabular text-xs tracking-widest text-brass uppercase mb-3">
-          Next Millionaire MBS
-        </p>
-        <h1 className="font-display text-4xl mb-4">NM Finance</h1>
-        <p className="text-ink/70">
-          Scaffold is running. Login, dashboard, and ledger screens come next.
-        </p>
-      </div>
-    </div>
+    <AuthProvider>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/*"
+          element={
+            <RequireAuth>
+              <Suspense fallback={<Splash label="Opening the ledger…" />}>
+                <Routes>
+                  {protectedRoutes.map((r) => (
+                    <Route key={r.path} path={r.path} element={r.element} />
+                  ))}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
+            </RequireAuth>
+          }
+        />
+      </Routes>
+    </AuthProvider>
   )
 }
