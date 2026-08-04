@@ -12,7 +12,7 @@ export function Field({ label, id, type = 'text', value, onChange, placeholder, 
         required={required}
         step={step}
         min={min}
-        className="mt-1.5 w-full rounded-md border border-rule bg-white/70 px-3 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-ink/25 focus:border-brass"
+        className="mt-1.5 w-full rounded-md border border-rule bg-card/70 px-3 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-ink/25 focus:border-brass"
       />
     </label>
   )
@@ -27,7 +27,7 @@ export function SelectField({ label, id, value, onChange, options, required }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="mt-1.5 w-full rounded-md border border-rule bg-white/70 px-3 py-2.5 text-sm text-ink outline-none transition-colors focus:border-brass"
+        className="mt-1.5 w-full rounded-md border border-rule bg-card/70 px-3 py-2.5 text-sm text-ink outline-none transition-colors focus:border-brass"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>

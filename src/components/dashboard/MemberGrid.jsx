@@ -3,7 +3,7 @@ import { formatMoney } from '../../lib/format'
 export default function MemberGrid({ members }) {
   if (!members.length) {
     return (
-      <section className="mt-6 rounded-xl border border-dashed border-rule bg-white/40 p-10 text-center">
+      <section className="mt-6 rounded-xl border border-dashed border-rule bg-card/40 p-10 text-center">
         <p className="font-display text-xl text-ink">No members yet</p>
         <p className="mt-2 text-sm text-ink/50">
           Add members and their contributions will appear here, alongside dividends paid.
@@ -24,7 +24,7 @@ export default function MemberGrid({ members }) {
           return (
             <div
               key={m.id}
-              className="rounded-xl border border-rule bg-white/70 p-5 transition-shadow hover:shadow-[0_16px_40px_-24px_rgba(15,31,61,0.3)]"
+              className="rounded-xl border border-rule bg-card/70 p-5 transition-shadow hover:shadow-[0_16px_40px_-24px_rgba(15,31,61,0.3)]"
             >
               <div className="flex items-center justify-between gap-2">
                 <h3 className="truncate font-medium text-ink">{m.name}</h3>

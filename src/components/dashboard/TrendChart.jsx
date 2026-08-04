@@ -8,9 +8,11 @@ import {
   XAxis,
   YAxis
 } from 'recharts'
+import { useTheme } from '../../context/ThemeContext'
 import { formatMoney, formatCompact, shortMonth, monthLabel } from '../../lib/format'
 
 export default function TrendChart({ data, month }) {
+  const { isDark } = useTheme()
   const { monthly, cars } = data
   const gradientId = useId().replace(/:/g, '')
   const inId = `gradIn-${gradientId}`
@@ -26,18 +28,27 @@ export default function TrendChart({ data, month }) {
     carStatus[c.status] = c.count
   })
 
+  // recharts sets colors as SVG attributes, so pick real hex values per theme.
+  const c = {
+    ink: isDark ? '#E9E6DC' : '#0F1F3D',
+    brass: isDark ? '#D6AF3E' : '#C9A227',
+    grid: isDark ? '#222E48' : '#DCD7C9',
+    tooltipBg: isDark ? '#111B2E' : '#F7F5F0',
+    tooltipBorder: isDark ? '#222E48' : '#DCD7C9'
+  }
+
   return (
     <section className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
       {/* trend chart */}
-      <div className="rounded-xl border border-rule bg-white/70 p-5 lg:col-span-2">
-        <div className="flex items-baseline justify-between">
+      <div className="rounded-xl border border-rule bg-card/70 p-5 lg:col-span-2">
+        <div className="flex items-baseline justify-between gap-3">
           <div>
             <p className="tabular text-[10px] uppercase tracking-[0.2em] text-ink/45">
               Cash flow · last 6 months
             </p>
             <h3 className="font-display mt-1 text-xl text-ink">{monthLabel(month)}</h3>
           </div>
-          <div className="flex items-center gap-4 text-xs text-ink/55">
+          <div className="flex shrink-0 items-center gap-4 text-xs text-ink/55">
             <span className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-brass" /> In
             </span>
@@ -52,25 +63,25 @@ export default function TrendChart({ data, month }) {
             <AreaChart data={data.trend} margin={{ top: 6, right: 6, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id={inId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#C9A227" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#C9A227" stopOpacity={0.02} />
+                  <stop offset="0%" stopColor={c.brass} stopOpacity={0.35} />
+                  <stop offset="100%" stopColor={c.brass} stopOpacity={0.02} />
                 </linearGradient>
                 <linearGradient id={outId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0F1F3D" stopOpacity={0.28} />
-                  <stop offset="100%" stopColor="#0F1F3D" stopOpacity={0.02} />
+                  <stop offset="0%" stopColor={c.ink} stopOpacity={0.28} />
+                  <stop offset="100%" stopColor={c.ink} stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="#DCD7C9" strokeDasharray="3 3" vertical={false} />
+              <CartesianGrid stroke={c.grid} strokeDasharray="3 3" vertical={false} />
               <XAxis
                 dataKey="month"
                 tickFormatter={shortMonth}
-                tick={{ fill: '#0F1F3D', fontSize: 11, opacity: 0.55 }}
-                axisLine={{ stroke: '#DCD7C9' }}
+                tick={{ fill: c.ink, fontSize: 11, opacity: 0.55 }}
+                axisLine={{ stroke: c.grid }}
                 tickLine={false}
               />
               <YAxis
                 tickFormatter={(v) => formatCompact(v)}
-                tick={{ fill: '#0F1F3D', fontSize: 11, opacity: 0.55 }}
+                tick={{ fill: c.ink, fontSize: 11, opacity: 0.55 }}
                 axisLine={false}
                 tickLine={false}
                 width={52}
@@ -82,8 +93,8 @@ export default function TrendChart({ data, month }) {
                 ]}
                 labelFormatter={(label) => monthLabel(label)}
                 contentStyle={{
-                  background: '#F7F5F0',
-                  border: '1px solid #DCD7C9',
+                  background: c.tooltipBg,
+                  border: `1px solid ${c.tooltipBorder}`,
                   borderRadius: 8,
                   fontSize: 12,
                   fontFamily: "'IBM Plex Mono', monospace"
@@ -92,14 +103,14 @@ export default function TrendChart({ data, month }) {
               <Area
                 type="monotone"
                 dataKey="inflow"
-                stroke="#C9A227"
+                stroke={c.brass}
                 strokeWidth={2}
                 fill={`url(#${inId})`}
               />
               <Area
                 type="monotone"
                 dataKey="outflow"
-                stroke="#0F1F3D"
+                stroke={c.ink}
                 strokeWidth={2}
                 fill={`url(#${outId})`}
               />
@@ -110,7 +121,7 @@ export default function TrendChart({ data, month }) {
 
       {/* this month breakdown + cars */}
       <div className="flex flex-col gap-4">
-        <div className="rounded-xl border border-rule bg-white/70 p-5">
+        <div className="rounded-xl border border-rule bg-card/70 p-5">
           <p className="tabular text-[10px] uppercase tracking-[0.2em] text-ink/45">
             This month · breakdown
           </p>
@@ -142,7 +153,7 @@ export default function TrendChart({ data, month }) {
           </ul>
         </div>
 
-        <div className="rounded-xl border border-rule bg-white/70 p-5">
+        <div className="rounded-xl border border-rule bg-card/70 p-5">
           <p className="tabular text-[10px] uppercase tracking-[0.2em] text-ink/45">Fleet</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {[

@@ -17,14 +17,14 @@ export default function RecentTable({ rows }) {
   return (
     <section className="mt-6">
       <h2 className="font-display text-xl text-ink">Recent activity</h2>
-      <div className="mt-4 overflow-hidden rounded-xl border border-rule bg-white/70">
+      <div className="mt-4 overflow-hidden rounded-xl border border-rule bg-card/70">
         {rows.length === 0 ? (
           <p className="px-6 py-10 text-center text-sm text-ink/50">
             No transactions yet — entries will show up here as they're posted.
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[28rem] text-sm">
               <thead>
                 <tr className="border-b border-rule text-left">
                   {['Date', 'Description', 'Type', 'Amount'].map((h) => (

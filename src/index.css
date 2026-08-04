@@ -2,6 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme tokens ─────────────────────────────────────────────
+   Values are RGB triplets consumed by tailwind.config.js.
+   `.dark` flips the semantic tokens for dark mode. */
+:root {
+  --ink: 15 31 61;            /* #0F1F3D deep ledger navy — text */
+  --ink-light: 27 58 107;     /* #1B3A6B */
+  --brass: 201 162 39;        /* #C9A227 brass/gold accent */
+  --brass-light: 230 197 92;  /* #E6C55C */
+  --paper: 247 245 240;       /* #F7F5F0 warm off-white background */
+  --rule: 220 215 201;        /* #DCD7C9 hairline */
+  --loss: 179 38 30;          /* #B3261E */
+  --gain: 30 122 76;          /* #1E7A4C */
+  --card: 255 255 255;        /* card surface (white overlay on paper) */
+  --navy: 15 31 61;           /* deep surface — constant across themes */
+  --navy-light: 27 58 107;
+}
+
+.dark {
+  --ink: 233 230 220;         /* warm off-white text */
+  --ink-light: 255 255 255;
+  --brass: 214 175 62;        /* brighter gold for contrast */
+  --brass-light: 236 205 118;
+  --paper: 10 17 31;          /* #0A111F deep navy background */
+  --rule: 34 46 72;           /* #222E48 */
+  --loss: 240 92 82;          /* #F05C52 */
+  --gain: 52 199 123;         /* #34C77B */
+  --card: 17 27 46;           /* #111B2E card surface */
+  --navy: 15 31 61;
+  --navy-light: 27 58 107;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   font-family: 'Inter', sans-serif;
 }
@@ -13,4 +48,26 @@ body {
 .tabular {
   font-family: 'IBM Plex Mono', monospace;
   font-variant-numeric: tabular-nums;
+}
+
+/* Hide scrollbars on horizontally-scrolling rails (mobile nav) */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth theme flip — applied by ThemeContext only while toggling,
+   so the app never animates on first paint. */
+.theme-anim,
+.theme-anim *,
+.theme-anim *::before,
+.theme-anim *::after {
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.2s ease,
+    fill 0.3s ease,
+    stroke 0.3s ease !important;
 }

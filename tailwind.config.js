@@ -1,21 +1,22 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
       colors: {
-        ink: {
-          DEFAULT: '#0F1F3D',   // deep ledger navy — primary
-          light: '#1B3A6B'
-        },
-        brass: {
-          DEFAULT: '#C9A227',   // brass/gold accent — money, growth
-          light: '#E6C55C'
-        },
-        paper: '#F7F5F0',        // warm off-white background, like ledger paper
-        rule: '#DCD7C9',         // hairline rule color
-        loss: '#B3261E',
-        gain: '#1E7A4C'
+        // Semantic tokens — values live in src/index.css under :root and .dark
+        ink: 'rgb(var(--ink) / <alpha-value>)',
+        'ink-light': 'rgb(var(--ink-light) / <alpha-value>)',
+        brass: 'rgb(var(--brass) / <alpha-value>)',
+        'brass-light': 'rgb(var(--brass-light) / <alpha-value>)',
+        paper: 'rgb(var(--paper) / <alpha-value>)',
+        rule: 'rgb(var(--rule) / <alpha-value>)',
+        loss: 'rgb(var(--loss) / <alpha-value>)',
+        gain: 'rgb(var(--gain) / <alpha-value>)',
+        card: 'rgb(var(--card) / <alpha-value>)', // card surface (white in light mode)
+        navy: 'rgb(var(--navy) / <alpha-value>)', // deep surface that stays dark in both modes
+        'navy-light': 'rgb(var(--navy-light) / <alpha-value>)'
       },
       fontFamily: {
         display: ['"Fraunces"', 'serif'],

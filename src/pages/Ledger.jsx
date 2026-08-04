@@ -129,12 +129,12 @@ export default function Ledger() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">Transactions</p>
-          <h1 className="font-display mt-1 text-3xl text-ink">Ledger</h1>
+          <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Ledger</h1>
         </div>
         <button
           type="button"
           onClick={() => setModal({ mode: 'add' })}
-          className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-ink shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
+          className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
         >
           + Add entry
         </button>
@@ -146,12 +146,12 @@ export default function Ledger() {
           type="month"
           value={month}
           onChange={(e) => setMonth(e.target.value)}
-          className="rounded-md border border-rule bg-white/70 px-3 py-2 text-sm text-ink outline-none focus:border-brass"
+          className="w-full rounded-md border border-rule bg-card/70 px-3 py-2 text-sm text-ink outline-none focus:border-brass sm:w-auto"
         />
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
-          className="rounded-md border border-rule bg-white/70 px-3 py-2 text-sm text-ink outline-none focus:border-brass"
+          className="w-full rounded-md border border-rule bg-card/70 px-3 py-2 text-sm text-ink outline-none focus:border-brass sm:w-auto"
         >
           {TYPE_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -167,7 +167,7 @@ export default function Ledger() {
       </div>
 
       {/* table */}
-      <div className="mt-4 overflow-hidden rounded-xl border border-rule bg-white/70">
+      <div className="mt-4 overflow-hidden rounded-xl border border-rule bg-card/70">
         {status === 'loading' && !filtered.length ? (
           <p className="px-6 py-10 text-center text-sm text-ink/50">Loading entries…</p>
         ) : status === 'error' ? (
@@ -178,7 +178,7 @@ export default function Ledger() {
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[34rem] text-sm">
               <thead>
                 <tr className="border-b border-rule text-left">
                   {['Date', 'Description', 'Member / Car', 'Type', 'Amount', ''].map((h, i) => (
@@ -221,7 +221,7 @@ export default function Ledger() {
                           type="button"
                           aria-label="Edit"
                           onClick={() => setModal({ mode: 'edit', tx: row })}
-                          className="rounded-md p-1.5 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
+                          className="rounded-md p-2 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
                         >
                           <EditIcon />
                         </button>
@@ -229,7 +229,7 @@ export default function Ledger() {
                           type="button"
                           aria-label="Delete"
                           onClick={() => setDeleting(row)}
-                          className="ml-1 rounded-md p-1.5 text-ink/40 transition-colors hover:bg-loss/10 hover:text-loss"
+                          className="ml-1 rounded-md p-2 text-ink/40 transition-colors hover:bg-loss/10 hover:text-loss"
                         >
                           <TrashIcon />
                         </button>
@@ -320,14 +320,14 @@ export default function Ledger() {
               <button
                 type="button"
                 onClick={() => setModal(null)}
-                className="rounded-md border border-rule bg-white/70 px-4 py-2.5 text-sm font-medium text-ink/70 transition-colors hover:text-ink"
+                className="rounded-md border border-rule bg-card/70 px-4 py-2.5 text-sm font-medium text-ink/70 transition-colors hover:text-ink"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-ink transition-all hover:bg-brass-light disabled:opacity-60"
+                className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy transition-all hover:bg-brass-light disabled:opacity-60"
               >
                 {busy ? 'Saving…' : modal.mode === 'edit' ? 'Save changes' : 'Add entry'}
               </button>
@@ -347,7 +347,7 @@ export default function Ledger() {
             <button
               type="button"
               onClick={() => setDeleting(null)}
-              className="rounded-md border border-rule bg-white/70 px-4 py-2.5 text-sm font-medium text-ink/70 transition-colors hover:text-ink"
+              className="rounded-md border border-rule bg-card/70 px-4 py-2.5 text-sm font-medium text-ink/70 transition-colors hover:text-ink"
             >
               Cancel
             </button>
@@ -355,7 +355,7 @@ export default function Ledger() {
               type="button"
               onClick={handleDelete}
               disabled={busy}
-              className="rounded-md bg-loss px-4 py-2.5 text-sm font-semibold text-paper transition-all hover:opacity-90 disabled:opacity-60"
+              className="rounded-md bg-loss px-4 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-60"
             >
               {busy ? 'Deleting…' : 'Delete'}
             </button>

@@ -21,16 +21,16 @@ export default function Dashboard() {
           <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">
             Company overview
           </p>
-          <h1 className="font-display mt-1 text-3xl text-ink">Dashboard</h1>
+          <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Dashboard</h1>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {isDemo && (
             <span className="rounded-full border border-brass/40 bg-brass/10 px-3 py-1.5 text-[11px] font-medium text-ink/70">
               Sample data · connect Netlify DB for live figures
             </span>
           )}
-          <div className="flex items-center rounded-md border border-rule bg-white/70">
+          <div className="flex items-center rounded-md border border-rule bg-card/70">
             <button
               type="button"
               aria-label="Previous month"
@@ -72,7 +72,7 @@ export default function Dashboard() {
                 setInitState('failed')
               }
             }}
-            className="mt-5 rounded-md bg-ink px-4 py-2.5 text-sm font-semibold text-paper transition-all hover:bg-ink-light disabled:opacity-60"
+            className="mt-5 rounded-md bg-navy px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-navy-light disabled:opacity-60"
           >
             {initState === 'running'
               ? 'Setting up…'
@@ -88,14 +88,14 @@ export default function Dashboard() {
         <div className="mt-6 space-y-6" aria-busy="true">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse rounded-xl border border-rule bg-white/50 p-5">
+              <div key={i} className="animate-pulse rounded-xl border border-rule bg-card/50 p-5">
                 <div className="h-3 w-24 rounded bg-ink/10" />
                 <div className="mt-4 h-8 w-36 rounded bg-ink/10" />
                 <div className="mt-3 h-3 w-28 rounded bg-ink/5" />
               </div>
             ))}
           </div>
-          <div className="animate-pulse rounded-xl border border-rule bg-white/50 p-5">
+          <div className="animate-pulse rounded-xl border border-rule bg-card/50 p-5">
             <div className="h-4 w-40 rounded bg-ink/10" />
             <div className="mt-6 h-52 rounded bg-ink/5" />
           </div>

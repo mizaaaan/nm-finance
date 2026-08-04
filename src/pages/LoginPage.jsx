@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { readUrlTokens } from '../lib/auth'
 import Splash from '../components/Splash'
 import Spinner from '../components/Spinner'
+import ThemeToggle from '../components/ThemeToggle'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -119,9 +120,14 @@ export default function LoginPage() {
   const identityUnreachable = !loading && settings === null
 
   return (
-    <div className="min-h-screen bg-paper lg:flex">
+    <div className="relative min-h-dvh bg-paper lg:flex">
+      {/* theme toggle — floats top-right on every screen size */}
+      <div className="absolute right-4 top-4 z-20 sm:right-6 sm:top-6">
+        <ThemeToggle />
+      </div>
+
       {/* ── Brand panel ─────────────────────────────────────────── */}
-      <aside className="relative hidden w-[46%] flex-col justify-between overflow-hidden bg-ink p-12 text-paper lg:flex">
+      <aside className="relative hidden w-[46%] flex-col justify-between overflow-hidden bg-navy p-12 text-white lg:flex">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-[0.06]"
@@ -135,7 +141,7 @@ export default function LoginPage() {
             Next Millionaire MBS
           </p>
           <h1 className="font-display mt-3 text-5xl">NM Finance</h1>
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-paper/60">
+          <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/60">
             The monthly balance accountability ledger for the group — rent income,
             member contributions, and car expenses, all in one place.
           </p>
@@ -143,7 +149,7 @@ export default function LoginPage() {
 
         {/* decorative ledger snapshot */}
         <div className="relative max-w-sm rounded-xl border border-white/10 bg-white/[0.04] p-6">
-          <p className="tabular text-[10px] uppercase tracking-[0.2em] text-paper/40">
+          <p className="tabular text-[10px] uppercase tracking-[0.2em] text-white/40">
             Company ledger · snapshot
           </p>
           <ul className="mt-5 space-y-3">
@@ -154,18 +160,18 @@ export default function LoginPage() {
               ['Dividends paid', '−300,000.00']
             ].map(([label, value]) => (
               <li key={label} className="flex items-baseline justify-between gap-4">
-                <span className="text-sm text-paper/60">{label}</span>
-                <span className="tabular text-sm text-paper/90">{value}</span>
+                <span className="text-sm text-white/60">{label}</span>
+                <span className="tabular text-sm text-white/90">{value}</span>
               </li>
             ))}
             <li className="mt-4 flex items-baseline justify-between gap-4 border-t border-white/10 pt-4">
-              <span className="text-sm text-paper/70">Net balance</span>
+              <span className="text-sm text-white/70">Net balance</span>
               <span className="tabular text-xl font-medium text-brass">2,843,750.00</span>
             </li>
           </ul>
         </div>
 
-        <p className="relative tabular text-[11px] uppercase tracking-[0.2em] text-paper/40">
+        <p className="relative tabular text-[11px] uppercase tracking-[0.2em] text-white/40">
           Balance · Accountability · Growth
         </p>
       </aside>
@@ -178,10 +184,10 @@ export default function LoginPage() {
             <p className="tabular text-[10px] uppercase tracking-[0.24em] text-brass">
               Next Millionaire MBS
             </p>
-            <h1 className="font-display mt-1 text-3xl text-ink">NM Finance</h1>
+            <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">NM Finance</h1>
           </div>
 
-          <div className="rounded-2xl border border-rule bg-white/70 p-8 shadow-[0_24px_60px_-32px_rgba(15,31,61,0.35)] backdrop-blur">
+          <div className="rounded-2xl border border-rule bg-card/70 p-6 shadow-[0_24px_60px_-32px_rgba(15,31,61,0.35)] backdrop-blur sm:p-8">
             {/* banners */}
             {identityUnreachable && (
               <div className="mb-6 rounded-md border border-brass/30 bg-brass/10 px-3 py-2.5 text-xs leading-relaxed text-ink/70">
@@ -229,7 +235,7 @@ export default function LoginPage() {
               <form onSubmit={handleReset} className="space-y-6">
                 <div>
                   <p className="tabular text-[10px] uppercase tracking-[0.24em] text-brass">Password recovery</p>
-                  <h2 className="font-display mt-1 text-3xl text-ink">Set a new password</h2>
+                  <h2 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Set a new password</h2>
                 </div>
                 <Field id="newPassword" label="New password" type="password" value={form.newPassword}
                   onChange={set('newPassword')} autoComplete="new-password" />
@@ -240,7 +246,7 @@ export default function LoginPage() {
             ) : (
               <>
                 {/* tabs */}
-                <div className="mb-8 grid grid-cols-2 gap-1 rounded-lg border border-rule bg-white/60 p-1">
+                <div className="mb-8 grid grid-cols-2 gap-1 rounded-lg border border-rule bg-card/60 p-1">
                   {MODES.map((m) => (
                     <button
                       key={m.id}
@@ -248,7 +254,7 @@ export default function LoginPage() {
                       onClick={() => switchMode(m.id)}
                       className={`rounded-md px-3 py-2 text-sm font-medium transition-all ${
                         mode === m.id
-                          ? 'bg-ink text-paper shadow-sm'
+                          ? 'bg-navy text-white shadow-sm'
                           : 'text-ink/50 hover:text-ink'
                       }`}
                     >
@@ -261,7 +267,7 @@ export default function LoginPage() {
                   <form onSubmit={handleSignIn} className="space-y-6">
                     <div>
                       <p className="tabular text-[10px] uppercase tracking-[0.24em] text-brass">Welcome back</p>
-                      <h2 className="font-display mt-1 text-3xl text-ink">Sign in to your ledger</h2>
+                      <h2 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Sign in to your ledger</h2>
                     </div>
                     <Field id="email" label="Email" type="email" value={form.email}
                       onChange={set('email')} autoComplete="email" placeholder="you@example.com" inputMode="email" />
@@ -284,7 +290,7 @@ export default function LoginPage() {
                   <form onSubmit={handleSignUp} className="space-y-6">
                     <div>
                       <p className="tabular text-[10px] uppercase tracking-[0.24em] text-brass">Join the ledger</p>
-                      <h2 className="font-display mt-1 text-3xl text-ink">Open an account</h2>
+                      <h2 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Open an account</h2>
                     </div>
                     {settings?.disable_signup ? (
                       <p className="rounded-md border border-rule bg-paper px-3 py-2.5 text-sm text-ink/60">
@@ -325,7 +331,7 @@ export default function LoginPage() {
                           key={p}
                           type="button"
                           onClick={() => signInWithProvider(p)}
-                          className="flex items-center justify-center gap-2 rounded-md border border-rule bg-white/70 px-3 py-2.5 text-sm capitalize text-ink/80 transition-all hover:border-ink/40 hover:bg-white hover:text-ink"
+                          className="flex items-center justify-center gap-2 rounded-md border border-rule bg-card/70 px-3 py-2.5 text-sm capitalize text-ink/80 transition-all hover:border-ink/40 hover:bg-card hover:text-ink"
                         >
                           <ProviderIcon provider={p} />
                           {p}
@@ -339,7 +345,7 @@ export default function LoginPage() {
                   <form onSubmit={handleForgot} className="space-y-6">
                     <div>
                       <p className="tabular text-[10px] uppercase tracking-[0.24em] text-brass">Password recovery</p>
-                      <h2 className="font-display mt-1 text-3xl text-ink">Reset your password</h2>
+                      <h2 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Reset your password</h2>
                       <p className="mt-2 text-sm text-ink/60">
                         Enter your account email and we’ll send you a reset link.
                       </p>
@@ -411,7 +417,7 @@ function SubmitButton({ busy, label }) {
     <button
       type="submit"
       disabled={busy}
-      className="flex w-full items-center justify-center gap-2 rounded-md bg-brass px-4 py-3 text-sm font-semibold text-ink shadow-sm transition-all hover:bg-brass-light active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-2 rounded-md bg-brass px-4 py-3 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {busy && <Spinner className="h-4 w-4" />}
       {busy ? 'Working…' : label}

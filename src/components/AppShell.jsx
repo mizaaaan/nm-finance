@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import ThemeToggle from './ThemeToggle'
 
 const NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: <GridIcon />, to: '/' },
@@ -19,9 +20,9 @@ export default function AppShell({ children }) {
     .toUpperCase()
 
   return (
-    <div className="flex min-h-screen bg-paper">
+    <div className="flex min-h-dvh bg-paper">
       {/* ── Sidebar (desktop) ── */}
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-rule bg-white/60 md:flex">
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-rule bg-card/60 md:flex">
         <div className="border-b border-rule px-6 py-5">
           <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">
             Next Millionaire MBS
@@ -38,7 +39,7 @@ export default function AppShell({ children }) {
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-md px-3 py-2.5 text-sm ${
                   isActive
-                    ? 'bg-ink text-paper'
+                    ? 'bg-navy text-white'
                     : 'text-ink/55 transition-colors hover:bg-ink/5 hover:text-ink'
                 }`
               }
@@ -63,10 +64,14 @@ export default function AppShell({ children }) {
               <p className="tabular truncate text-xs text-ink/40">{user?.email}</p>
             </div>
           </div>
+          <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-rule bg-card/60 px-3 py-2.5">
+            <span className="text-xs font-medium text-ink/70">Dark mode</span>
+            <ThemeToggle />
+          </div>
           <button
             type="button"
             onClick={signOut}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-rule bg-white/70 px-3 py-2 text-sm font-medium text-ink/70 transition-all hover:border-loss/40 hover:text-loss"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-rule bg-card/70 px-3 py-2 text-sm font-medium text-ink/70 transition-all hover:border-loss/40 hover:text-loss"
           >
             <LogoutIcon />
             Sign out
@@ -77,31 +82,38 @@ export default function AppShell({ children }) {
       {/* ── Main column ── */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar */}
-        <div className="flex items-center justify-between border-b border-rule bg-white/60 px-5 py-3 md:hidden">
-          <div>
-            <p className="tabular text-[10px] uppercase tracking-[0.2em] text-brass">NM Finance</p>
-            <p className="font-display text-lg leading-none text-ink">Next Millionaire MBS</p>
+        <div className="flex items-center justify-between gap-3 border-b border-rule bg-card/60 px-4 py-3 sm:px-5">
+          <div className="min-w-0">
+            <p className="tabular truncate text-[10px] uppercase tracking-[0.2em] text-brass">
+              NM Finance
+            </p>
+            <p className="font-display truncate text-lg leading-none text-ink">
+              Next Millionaire MBS
+            </p>
           </div>
-          <button
-            type="button"
-            onClick={signOut}
-            className="flex items-center gap-1.5 rounded-md border border-rule bg-white/70 px-3 py-1.5 text-xs font-medium text-ink/70"
-          >
-            <LogoutIcon className="h-3.5 w-3.5" />
-            Sign out
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <ThemeToggle />
+            <button
+              type="button"
+              onClick={signOut}
+              className="flex items-center gap-1.5 rounded-md border border-rule bg-card/70 px-3 py-1.5 text-xs font-medium text-ink/70 transition-colors hover:text-loss"
+            >
+              <LogoutIcon className="h-3.5 w-3.5" />
+              Sign out
+            </button>
+          </div>
         </div>
 
         {/* Mobile nav */}
-        <div className="flex gap-2 overflow-x-auto border-b border-rule px-4 py-2.5 md:hidden">
+        <div className="scrollbar-none flex gap-2 overflow-x-auto border-b border-rule px-4 py-2.5 md:hidden">
           {NAV.map((item) => (
             <NavLink
               key={item.id}
               to={item.to}
               end={item.to === '/'}
               className={({ isActive }) =>
-                `flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ${
-                  isActive ? 'bg-ink text-paper' : 'bg-white/70 text-ink/55'
+                `flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-xs font-medium ${
+                  isActive ? 'bg-navy text-white' : 'bg-card/70 text-ink/55'
                 }`
               }
             >
@@ -111,7 +123,7 @@ export default function AppShell({ children }) {
           ))}
         </div>
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 lg:px-10">{children}</main>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 lg:px-10">{children}</main>
       </div>
     </div>
   )

@@ -37,11 +37,11 @@ export default function StatCards({ data }) {
       {cards.map((card) => (
         <div
           key={card.label}
-          className="rounded-xl border border-rule bg-white/70 p-5 transition-shadow hover:shadow-[0_16px_40px_-24px_rgba(15,31,61,0.3)]"
+          className="rounded-xl border border-rule bg-card/70 p-5 transition-shadow hover:shadow-[0_16px_40px_-24px_rgba(15,31,61,0.3)]"
         >
           <p className="tabular text-[10px] uppercase tracking-[0.2em] text-ink/45">{card.label}</p>
           <p
-            className={`mt-3 tabular text-3xl font-medium tracking-tight ${
+            className={`mt-3 tabular text-2xl font-medium tracking-tight sm:text-3xl ${
               card.accent ? 'text-brass' : 'text-ink'
             }`}
           >

@@ -57,7 +57,7 @@ export default function Members() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">People</p>
-          <h1 className="font-display mt-1 text-3xl text-ink">Members</h1>
+          <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Members</h1>
         </div>
         <button
           type="button"
@@ -66,7 +66,7 @@ export default function Members() {
             setFormError(null)
             setModalOpen(true)
           }}
-          className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-ink shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
+          className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
         >
           + Add member
         </button>
@@ -100,7 +100,7 @@ export default function Members() {
           members.map((m) => (
             <div
               key={m.id}
-              className="rounded-xl border border-rule bg-white/70 p-5 transition-shadow hover:shadow-[0_16px_40px_-24px_rgba(15,31,61,0.3)]"
+              className="rounded-xl border border-rule bg-card/70 p-5 transition-shadow hover:shadow-[0_16px_40px_-24px_rgba(15,31,61,0.3)]"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
@@ -121,7 +121,7 @@ export default function Members() {
                   type="button"
                   aria-label={`Delete ${m.name}`}
                   onClick={() => setDeleting(m)}
-                  className="rounded-md p-1.5 text-ink/30 transition-colors hover:bg-loss/10 hover:text-loss"
+                  className="rounded-md p-2 text-ink/30 transition-colors hover:bg-loss/10 hover:text-loss"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
@@ -176,14 +176,14 @@ export default function Members() {
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="rounded-md border border-rule bg-white/70 px-4 py-2.5 text-sm font-medium text-ink/70 transition-colors hover:text-ink"
+                className="rounded-md border border-rule bg-card/70 px-4 py-2.5 text-sm font-medium text-ink/70 transition-colors hover:text-ink"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-ink transition-all hover:bg-brass-light disabled:opacity-60"
+                className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy transition-all hover:bg-brass-light disabled:opacity-60"
               >
                 {busy ? 'Saving…' : 'Add member'}
               </button>
@@ -203,7 +203,7 @@ export default function Members() {
             <button
               type="button"
               onClick={() => setDeleting(null)}
-              className="rounded-md border border-rule bg-white/70 px-4 py-2.5 text-sm font-medium text-ink/70 transition-colors hover:text-ink"
+              className="rounded-md border border-rule bg-card/70 px-4 py-2.5 text-sm font-medium text-ink/70 transition-colors hover:text-ink"
             >
               Cancel
             </button>
@@ -211,7 +211,7 @@ export default function Members() {
               type="button"
               onClick={handleDelete}
               disabled={busy}
-              className="rounded-md bg-loss px-4 py-2.5 text-sm font-semibold text-paper transition-all hover:opacity-90 disabled:opacity-60"
+              className="rounded-md bg-loss px-4 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-60"
             >
               {busy ? 'Deleting…' : 'Delete'}
             </button>
