@@ -143,15 +143,26 @@ async function transactionsRoute(sql, method, id, req, body) {
     const month = searchParams.get('month')
     const category = searchParams.get('category')
 
-    const conditions = []
-    if (type) conditions.push(sql`t.type = ${type}`)
-    if (month) conditions.push(sql`to_char(t.txn_date, 'YYYY-MM') = ${month}`)
-    if (category) conditions.push(sql`t.category = ${category}`)
+    // Build the WHERE clause with positional parameters (the `postgres`
+    // driver has no fragment-join helper for AND in this version).
+    const parts = []
+    const params = []
+    if (type) {
+      parts.push(`t.type = $${params.length + 1}`)
+      params.push(type)
+    }
+    if (month) {
+      parts.push(`to_char(t.txn_date, 'YYYY-MM') = $${params.length + 1}`)
+      params.push(month)
+    }
+    if (category) {
+      parts.push(`t.category = $${params.length + 1}`)
+      params.push(category)
+    }
+    const where = parts.length ? `WHERE ${parts.join(' AND ')}` : ''
 
-    const where = conditions.length ? sql`WHERE ${sql(conditions, ' AND ')}` : sql``
-
-    const rows = await sql`
-      SELECT
+    const rows = await sql.unsafe(
+      `SELECT
         t.id, t.type, t.category, t.amount,
         to_char(t.txn_date, 'YYYY-MM-DD') AS txn_date,
         t.description, t.car_id, t.member_id, t.created_by,
@@ -161,8 +172,9 @@ async function transactionsRoute(sql, method, id, req, body) {
       LEFT JOIN cars c ON c.id = t.car_id
       ${where}
       ORDER BY t.txn_date DESC, t.id DESC
-      LIMIT 200
-    `
+      LIMIT 200`,
+      params
+    )
     return json({ transactions: rows.map(camelize) })
   }
   if (method === 'POST') {
