@@ -137,10 +137,7 @@ export default function LoginPage() {
           }}
         />
         <div className="relative">
-          <p className="tabular text-[11px] uppercase tracking-[0.24em] text-brass">
-            Next Millionaire MBS
-          </p>
-          <h1 className="font-display mt-3 text-5xl">NM Finance</h1>
+          <h1 className="font-display text-5xl">Next Millionaire Finance</h1>
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/60">
             The monthly balance accountability ledger for the group — rent income,
             member contributions, and car expenses, all in one place.
@@ -181,10 +178,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* mobile brand */}
           <div className="mb-8 text-center lg:hidden">
-            <p className="tabular text-[10px] uppercase tracking-[0.24em] text-brass">
-              Next Millionaire MBS
-            </p>
-            <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">NM Finance</h1>
+            <h1 className="font-display text-2xl text-ink sm:text-3xl">Next Millionaire Finance</h1>
           </div>
 
           <div className="rounded-2xl border border-rule bg-card/70 p-6 shadow-[0_24px_60px_-32px_rgba(15,31,61,0.35)] backdrop-blur sm:p-8">

@@ -1,6 +1,6 @@
 import postgres from 'postgres'
 
-// Applies the NM Finance schema idempotently (all statements are
+// Applies the Next Millionaire Finance schema idempotently (all statements are
 // CREATE TABLE/INDEX IF NOT EXISTS). Keep in sync with db/schema.sql —
 // that file is the source of truth.
 const SCHEMA = `

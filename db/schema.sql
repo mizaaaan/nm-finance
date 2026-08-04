@@ -1,4 +1,4 @@
--- NM Finance database schema
+-- Next Millionaire Finance database schema
 -- Run this once against your Netlify DB (Postgres) instance.
 
 CREATE TABLE IF NOT EXISTS members (

@@ -24,10 +24,7 @@ export default function AppShell({ children }) {
       {/* ── Sidebar (desktop) ── */}
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-rule bg-card/60 md:flex">
         <div className="border-b border-rule px-6 py-5">
-          <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">
-            Next Millionaire MBS
-          </p>
-          <p className="font-display mt-1 text-xl leading-none text-ink">NM Finance</p>
+          <p className="font-display text-xl leading-none text-ink">Next Millionaire Finance</p>
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-4">
@@ -84,11 +81,8 @@ export default function AppShell({ children }) {
         {/* Mobile top bar */}
         <div className="flex items-center justify-between gap-3 border-b border-rule bg-card/60 px-4 py-3 sm:px-5">
           <div className="min-w-0">
-            <p className="tabular truncate text-[10px] uppercase tracking-[0.2em] text-brass">
-              NM Finance
-            </p>
             <p className="font-display truncate text-lg leading-none text-ink">
-              Next Millionaire MBS
+              Next Millionaire Finance
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">

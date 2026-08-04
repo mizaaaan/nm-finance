@@ -1,5 +1,5 @@
 export default async (req) => {
-  return new Response(JSON.stringify({ ok: true, message: 'NM Finance API is alive' }), {
+  return new Response(JSON.stringify({ ok: true, message: 'Next Millionaire Finance API is alive' }), {
     headers: { 'Content-Type': 'application/json' }
   })
 }

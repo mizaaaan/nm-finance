@@ -1,6 +1,6 @@
-# NM Finance
+# Next Millionaire Finance
 
-Monthly balance accountability app for Next Millionaire MBS. Members log rent income,
+Monthly balance accountability app for Next Millionaire Finance. Members log rent income,
 contributions, and car-related expenses; the dashboard shows company balance, profit,
 and per-member investment/dividend history.
 
