@@ -235,7 +235,8 @@ export default async (req, context) => {
   const id = segments[2] ? Number(segments[2]) : null
 
   // Access control: any signed-in user may read; only admins may write.
-  const denied = req.method === 'GET' ? requireUser(context) : requireAdmin(context)
+  const denied =
+    req.method === 'GET' ? await requireUser(req, context) : await requireAdmin(req, context)
   if (denied) return denied
   if (segments[2] && !(Number.isInteger(id) && id > 0)) {
     return json({ error: 'Invalid id' }, 400)

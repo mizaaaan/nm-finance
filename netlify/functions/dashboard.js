@@ -17,7 +17,7 @@ const num = (value) => Number(value) || 0
 
 export default async (req, context) => {
   // Only signed-in users may read the dashboard.
-  const denied = requireUser(context)
+  const denied = await requireUser(req, context)
   if (denied) return denied
 
   if (!CONNECTION_STRING) {

@@ -54,7 +54,7 @@ const json = (body, status = 200) =>
 export default async (req, context) => {
   if (req.method !== 'POST') return json({ error: 'Use POST /api/init' }, 405)
   // Schema setup is an admin-only operation.
-  const denied = requireAdmin(context)
+  const denied = await requireAdmin(req, context)
   if (denied) return denied
 
   if (!CONNECTION_STRING) {
