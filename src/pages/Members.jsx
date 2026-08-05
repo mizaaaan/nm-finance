@@ -2,6 +2,7 @@ import { useState } from 'react'
 import AppShell from '../components/AppShell'
 import Modal from '../components/Modal'
 import { Field, SelectField, ErrorBanner } from '../components/Field'
+import { useAuth } from '../context/AuthContext'
 import { useApi } from '../hooks/useApi'
 import { apiRequest } from '../lib/api'
 import { demoMembers } from '../lib/demoData'
@@ -9,6 +10,7 @@ import { demoMembers } from '../lib/demoData'
 const EMPTY_FORM = { name: '', email: '', phone: '', role: 'member' }
 
 export default function Members() {
+  const { isAdmin } = useAuth()
   const { data, status, isDemo, error, refetch } = useApi('/api/members', { demo: demoMembers })
   const members = data?.members || []
 
@@ -59,17 +61,19 @@ export default function Members() {
           <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">People</p>
           <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Members</h1>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setForm(EMPTY_FORM)
-            setFormError(null)
-            setModalOpen(true)
-          }}
-          className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
-        >
-          + Add member
-        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={() => {
+              setForm(EMPTY_FORM)
+              setFormError(null)
+              setModalOpen(true)
+            }}
+            className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
+          >
+            + Add member
+          </button>
+        )}
       </div>
 
       {(isDemo || listError) && (
@@ -117,16 +121,18 @@ export default function Members() {
                     <p className="tabular truncate text-xs text-ink/45">{m.email || 'No email'}</p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  aria-label={`Delete ${m.name}`}
-                  onClick={() => setDeleting(m)}
-                  className="rounded-md p-2 text-ink/30 transition-colors hover:bg-loss/10 hover:text-loss"
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
-                  </svg>
-                </button>
+                {isAdmin && (
+                  <button
+                    type="button"
+                    aria-label={`Delete ${m.name}`}
+                    onClick={() => setDeleting(m)}
+                    className="rounded-md p-2 text-ink/30 transition-colors hover:bg-loss/10 hover:text-loss"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
+                    </svg>
+                  </button>
+                )}
               </div>
               <div className="mt-4 flex items-center gap-3 text-sm">
                 {m.role === 'admin' && (

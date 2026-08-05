@@ -1,4 +1,5 @@
 import postgres from 'postgres'
+import { requireUser, requireAdmin } from './_shared/auth.js'
 
 const CONNECTION_STRING = process.env.NETLIFY_DB_URL || process.env.DATABASE_URL
 
@@ -232,6 +233,10 @@ export default async (req, context) => {
   const segments = pathname.split('/').filter(Boolean) // ['api', 'members', '3']
   const resource = segments[1]
   const id = segments[2] ? Number(segments[2]) : null
+
+  // Access control: any signed-in user may read; only admins may write.
+  const denied = req.method === 'GET' ? requireUser(context) : requireAdmin(context)
+  if (denied) return denied
   if (segments[2] && !(Number.isInteger(id) && id > 0)) {
     return json({ error: 'Invalid id' }, 400)
   }

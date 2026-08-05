@@ -3,6 +3,7 @@ import AppShell from '../components/AppShell'
 import Modal from '../components/Modal'
 import { Field, SelectField, ErrorBanner } from '../components/Field'
 import TypeChip from '../components/TypeChip'
+import { useAuth } from '../context/AuthContext'
 import { useApi } from '../hooks/useApi'
 import { apiRequest, ApiError } from '../lib/api'
 import { formatMoney, currentMonth } from '../lib/format'
@@ -35,6 +36,7 @@ const TYPE_OPTIONS = [
 const EMPTY_FORM = { type: 'income', category: 'driver_rent', amount: '', txn_date: '', description: '', member_id: '', car_id: '' }
 
 export default function Ledger() {
+  const { isAdmin } = useAuth()
   const [month, setMonth] = useState(currentMonth())
   const [type, setType] = useState('')
 
@@ -131,13 +133,15 @@ export default function Ledger() {
           <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">Transactions</p>
           <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Ledger</h1>
         </div>
-        <button
-          type="button"
-          onClick={() => setModal({ mode: 'add' })}
-          className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
-        >
-          + Add entry
-        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={() => setModal({ mode: 'add' })}
+            className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
+          >
+            + Add entry
+          </button>
+        )}
       </div>
 
       {/* filters */}
@@ -181,7 +185,7 @@ export default function Ledger() {
             <table className="w-full min-w-[34rem] text-sm">
               <thead>
                 <tr className="border-b border-rule text-left">
-                  {['Date', 'Description', 'Member / Car', 'Type', 'Amount', ''].map((h, i) => (
+                  {[...['Date', 'Description', 'Member / Car', 'Type', 'Amount'], ...(isAdmin ? [''] : [])].map((h, i) => (
                     <th
                       key={i}
                       className="tabular whitespace-nowrap px-5 py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-ink/40"
@@ -217,22 +221,26 @@ export default function Ledger() {
                         {formatMoney(row.amount)}
                       </td>
                       <td className="whitespace-nowrap px-5 py-3 text-right">
-                        <button
-                          type="button"
-                          aria-label="Edit"
-                          onClick={() => setModal({ mode: 'edit', tx: row })}
-                          className="rounded-md p-2 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
-                        >
-                          <EditIcon />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Delete"
-                          onClick={() => setDeleting(row)}
-                          className="ml-1 rounded-md p-2 text-ink/40 transition-colors hover:bg-loss/10 hover:text-loss"
-                        >
-                          <TrashIcon />
-                        </button>
+                        {isAdmin && (
+                          <>
+                            <button
+                              type="button"
+                              aria-label="Edit"
+                              onClick={() => setModal({ mode: 'edit', tx: row })}
+                              className="rounded-md p-2 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
+                            >
+                              <EditIcon />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label="Delete"
+                              onClick={() => setDeleting(row)}
+                              className="ml-1 rounded-md p-2 text-ink/40 transition-colors hover:bg-loss/10 hover:text-loss"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   )

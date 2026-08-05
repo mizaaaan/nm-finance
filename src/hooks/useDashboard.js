@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { demoData } from '../lib/demoData'
+import { authToken } from '../lib/api'
 
 class ApiError extends Error {
   constructor(message, status) {
@@ -23,7 +24,13 @@ export function useDashboard(month) {
 
     setState({ status: 'loading', data: null, isDemo: false, error: null })
 
-    fetch(`/api/dashboard?month=${encodeURIComponent(month)}`, { signal: controller.signal })
+    ;(async () => {
+      const token = await authToken()
+      return fetch(`/api/dashboard?month=${encodeURIComponent(month)}`, {
+        signal: controller.signal,
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined
+      })
+    })()
       .then(async (res) => {
         if (!res.ok) {
           let message = `The dashboard API responded ${res.status}.`

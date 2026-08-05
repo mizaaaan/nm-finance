@@ -55,10 +55,21 @@ Query Netlify DB locally with:
 netlify database status --show-credentials
 ```
 
-> **Note:** the dashboard API is currently unauthenticated — it trusts the
-> frontend (which sits behind Identity) and returns aggregate figures. If the
-> site is ever public, add JWT verification (`Authorization: Bearer …` against
-> the Identity JWT secret) to `netlify/functions/dashboard.js`.
+## Permissions
+
+- **Read** (dashboard, members, cars, ledger): any signed-in Netlify Identity user.
+- **Write** (add / edit / delete, and `/api/init`): **admin only**.
+- **Admin** = Netlify Identity role `admin` (set in the Netlify dashboard:
+  *Site settings → Identity → Users → pick a user → Roles*), **or** an email in
+  `ADMIN_EMAILS` — default `md.mizan235@gmail.com`, extend via the Netlify env
+  var `ADMIN_EMAILS` (comma-separated) and the list in `src/lib/auth.js`.
+
+Every request to `/api/*` must carry a valid Identity JWT
+(`Authorization: Bearer …`); Netlify verifies it and the functions reject
+missing/invalid tokens with `401`, and non-admin writes with `403`.
+
+> **Recommendation:** switch Identity registration to **Invite only** in the
+> Netlify dashboard so strangers can't create accounts at all.
 
 ## Auth (Netlify Identity)
 

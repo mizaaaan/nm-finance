@@ -4,11 +4,13 @@ import StatCards from '../components/dashboard/StatCards'
 import TrendChart from '../components/dashboard/TrendChart'
 import MemberGrid from '../components/dashboard/MemberGrid'
 import RecentTable from '../components/dashboard/RecentTable'
+import { useAuth } from '../context/AuthContext'
 import { useDashboard } from '../hooks/useDashboard'
 import { apiRequest } from '../lib/api'
 import { currentMonth, monthLabel, shiftMonth } from '../lib/format'
 
 export default function Dashboard() {
+  const { isAdmin } = useAuth()
   const today = currentMonth()
   const [month, setMonth] = useState(today)
   const { data, status, isDemo, error, refetch } = useDashboard(month)
@@ -59,27 +61,29 @@ export default function Dashboard() {
         <div className="mt-6 rounded-xl border border-loss/30 bg-loss/5 px-5 py-6 text-center">
           <p className="font-display text-xl text-ink">Couldn't load the dashboard</p>
           <p className="mt-2 text-sm leading-relaxed text-ink/60">{error}</p>
-          <button
-            type="button"
-            disabled={initState === 'running'}
-            onClick={async () => {
-              setInitState('running')
-              try {
-                await apiRequest('/api/init', { method: 'POST' })
-                setInitState('done')
-                refetch()
-              } catch {
-                setInitState('failed')
-              }
-            }}
-            className="mt-5 rounded-md bg-navy px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-navy-light disabled:opacity-60"
-          >
-            {initState === 'running'
-              ? 'Setting up…'
-              : initState === 'done'
-                ? 'Done — reloading…'
-                : 'Run database setup'}
-          </button>
+          {isAdmin && (
+            <button
+              type="button"
+              disabled={initState === 'running'}
+              onClick={async () => {
+                setInitState('running')
+                try {
+                  await apiRequest('/api/init', { method: 'POST' })
+                  setInitState('done')
+                  refetch()
+                } catch {
+                  setInitState('failed')
+                }
+              }}
+              className="mt-5 rounded-md bg-navy px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-navy-light disabled:opacity-60"
+            >
+              {initState === 'running'
+                ? 'Setting up…'
+                : initState === 'done'
+                  ? 'Done — reloading…'
+                  : 'Run database setup'}
+            </button>
+          )}
           {initState === 'failed' && (
             <p className="mt-2 text-xs text-loss">Setup failed — check the function logs.</p>
           )}

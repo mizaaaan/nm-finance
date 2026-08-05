@@ -2,6 +2,7 @@ import { useState } from 'react'
 import AppShell from '../components/AppShell'
 import Modal from '../components/Modal'
 import { Field, SelectField, ErrorBanner } from '../components/Field'
+import { useAuth } from '../context/AuthContext'
 import { useApi } from '../hooks/useApi'
 import { apiRequest } from '../lib/api'
 import { formatMoney } from '../lib/format'
@@ -22,6 +23,7 @@ const STATUS_STYLE = {
 const EMPTY_FORM = { name: '', registration_no: '', purchase_price: '', purchase_date: '', status: 'active' }
 
 export default function Cars() {
+  const { isAdmin } = useAuth()
   const { data, status, isDemo, error, refetch } = useApi('/api/cars', { demo: demoCars })
   const cars = data?.cars || []
 
@@ -90,17 +92,19 @@ export default function Cars() {
           <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">Fleet</p>
           <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Cars</h1>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setForm(EMPTY_FORM)
-            setFormError(null)
-            setModalOpen(true)
-          }}
-          className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
-        >
-          + Add car
-        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={() => {
+              setForm(EMPTY_FORM)
+              setFormError(null)
+              setModalOpen(true)
+            }}
+            className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
+          >
+            + Add car
+          </button>
+        )}
       </div>
 
       {isDemo && (
@@ -129,16 +133,18 @@ export default function Cars() {
                   <h3 className="truncate font-medium text-ink">{car.name}</h3>
                   <p className="tabular mt-0.5 text-xs text-ink/45">{car.registration_no || 'No registration'}</p>
                 </div>
-                <button
-                  type="button"
-                  aria-label={`Delete ${car.name}`}
-                  onClick={() => setDeleting(car)}
-                  className="rounded-md p-2 text-ink/30 transition-colors hover:bg-loss/10 hover:text-loss"
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
-                  </svg>
-                </button>
+                {isAdmin && (
+                  <button
+                    type="button"
+                    aria-label={`Delete ${car.name}`}
+                    onClick={() => setDeleting(car)}
+                    className="rounded-md p-2 text-ink/30 transition-colors hover:bg-loss/10 hover:text-loss"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
+                    </svg>
+                  </button>
+                )}
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-4">
@@ -151,20 +157,30 @@ export default function Cars() {
                 </div>
                 <div>
                   <p className="tabular text-[10px] uppercase tracking-[0.16em] text-ink/45">Status</p>
-                  <select
-                    aria-label={`Status of ${car.name}`}
-                    value={car.status}
-                    onChange={(e) => handleStatusChange(car, e.target.value)}
-                    className={`mt-1 rounded-full border-0 bg-transparent px-2 py-1 text-xs font-semibold outline-none focus:ring-2 focus:ring-brass/40 ${
-                      STATUS_STYLE[car.status] || 'bg-ink/5 text-ink/60'
-                    }`}
-                  >
-                    {STATUS_OPTIONS.map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </select>
+                  {isAdmin ? (
+                    <select
+                      aria-label={`Status of ${car.name}`}
+                      value={car.status}
+                      onChange={(e) => handleStatusChange(car, e.target.value)}
+                      className={`mt-1 rounded-full border-0 bg-transparent px-2 py-1 text-xs font-semibold outline-none focus:ring-2 focus:ring-brass/40 ${
+                        STATUS_STYLE[car.status] || 'bg-ink/5 text-ink/60'
+                      }`}
+                    >
+                      {STATUS_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span
+                      className={`mt-1 inline-block rounded-full px-2 py-1 text-xs font-semibold ${
+                        STATUS_STYLE[car.status] || 'bg-ink/5 text-ink/60'
+                      }`}
+                    >
+                      {STATUS_OPTIONS.find((o) => o.value === car.status)?.label || car.status}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

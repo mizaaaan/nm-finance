@@ -1,4 +1,5 @@
 import postgres from 'postgres'
+import { requireAdmin } from './_shared/auth.js'
 
 // Applies the Next Millionaire Finance schema idempotently (all statements are
 // CREATE TABLE/INDEX IF NOT EXISTS). Keep in sync with db/schema.sql —
@@ -50,8 +51,12 @@ const json = (body, status = 200) =>
     headers: { 'Content-Type': 'application/json' }
   })
 
-export default async (req) => {
+export default async (req, context) => {
   if (req.method !== 'POST') return json({ error: 'Use POST /api/init' }, 405)
+  // Schema setup is an admin-only operation.
+  const denied = requireAdmin(context)
+  if (denied) return denied
+
   if (!CONNECTION_STRING) {
     return json({ error: 'Database not configured.' }, 500)
   }

@@ -1,4 +1,5 @@
 import postgres from 'postgres'
+import { requireUser } from './_shared/auth.js'
 
 // Netlify DB (built-in Postgres) connection string is injected automatically.
 // `netlify database status --show-credentials` reveals it locally.
@@ -14,7 +15,11 @@ const json = (body, status = 200) =>
 
 const num = (value) => Number(value) || 0
 
-export default async (req) => {
+export default async (req, context) => {
+  // Only signed-in users may read the dashboard.
+  const denied = requireUser(context)
+  if (denied) return denied
+
   if (!CONNECTION_STRING) {
     return json(
       {

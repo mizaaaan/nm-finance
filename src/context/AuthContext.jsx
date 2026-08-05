@@ -4,6 +4,7 @@ import {
   clearUrlTokens,
   createUserFromOAuthHash,
   enabledProviders,
+  isAdminUser,
   readUrlTokens
 } from '../lib/auth'
 
@@ -79,6 +80,7 @@ export function AuthProvider({ children }) {
       notice,
       providers: enabledProviders(settings),
       autoconfirm: Boolean(settings?.autoconfirm),
+      isAdmin: isAdminUser(user),
       clearNotice: () => setNotice(null),
 
       signIn: async (email, password) => {

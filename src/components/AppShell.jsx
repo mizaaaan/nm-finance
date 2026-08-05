@@ -10,7 +10,7 @@ const NAV = [
 ]
 
 export default function AppShell({ children }) {
-  const { user, signOut } = useAuth()
+  const { user, signOut, isAdmin } = useAuth()
   const name = user?.user_metadata?.full_name || user?.email
   const initials = (name || '?')
     .split(' ')
@@ -59,6 +59,11 @@ export default function AppShell({ children }) {
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-ink">{name}</p>
               <p className="tabular truncate text-xs text-ink/40">{user?.email}</p>
+              {!isAdmin && (
+                <span className="mt-1 inline-flex items-center rounded-full border border-rule bg-card/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-ink/50">
+                  View only
+                </span>
+              )}
             </div>
           </div>
           <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-rule bg-card/60 px-3 py-2.5">
