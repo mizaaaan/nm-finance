@@ -24,7 +24,9 @@ const EMPTY_FORM = { name: '', registration_no: '', purchase_price: '', purchase
 
 export default function Cars() {
   const { isAdmin } = useAuth()
-  const { data, status, isDemo, error, refetch } = useApi('/api/cars', { demo: demoCars })
+  const { data, status, isDemo, error, refetch } = useApi('/api/cars', {
+    demo: () => ({ cars: demoCars() })
+  })
   const cars = data?.cars || []
 
   const [modalOpen, setModalOpen] = useState(false)
@@ -110,7 +112,7 @@ export default function Cars() {
       {isDemo && (
         <div className="mt-4">
           <span className="rounded-full border border-brass/40 bg-brass/10 px-3 py-1.5 text-[11px] font-medium text-ink/70">
-            Sample data
+            Offline · showing empty state
           </span>
         </div>
       )}
@@ -131,7 +133,7 @@ export default function Cars() {
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <h3 className="truncate font-medium text-ink">{car.name}</h3>
-                  <p className="tabular mt-0.5 text-xs text-ink/45">{car.registration_no || 'No registration'}</p>
+                  <p className="tabular mt-0.5 text-xs text-ink/45">{car.registrationNo || car.registration_no || 'No registration'}</p>
                 </div>
                 {isAdmin && (
                   <button
@@ -151,9 +153,9 @@ export default function Cars() {
                 <div>
                   <p className="tabular text-[10px] uppercase tracking-[0.16em] text-ink/45">Purchased</p>
                   <p className="tabular mt-1 text-sm font-medium text-ink">
-                    {formatMoney(car.purchase_price)}
+                    {formatMoney(car.purchasePrice || car.purchase_price)}
                   </p>
-                  <p className="tabular text-xs text-ink/40">{car.purchase_date || '—'}</p>
+                  <p className="tabular text-xs text-ink/40">{car.purchaseDate || car.purchase_date || '—'}</p>
                 </div>
                 <div>
                   <p className="tabular text-[10px] uppercase tracking-[0.16em] text-ink/45">Status</p>
@@ -195,7 +197,7 @@ export default function Cars() {
             <ErrorBanner message={formError} />
             {isDemo && (
               <p className="rounded-md border border-brass/30 bg-brass/10 px-3 py-2 text-xs text-ink/70">
-                Sample data is showing — changes can't be saved until the database is connected.
+                The database isn't reachable — changes can't be saved until it's connected.
               </p>
             )}
             <Field label="Name" id="c-name" value={form.name} onChange={set('name')} placeholder="e.g. Toyota Camry — Silver" required />

@@ -7,11 +7,12 @@
   NODE_VERSION = "22"
   NPM_VERSION = "10"
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
+# The API functions (netlify/functions/*.js) are exposed directly at
+# /api/... via each function's `config.path`. Netlify routes requests to a
+# deployed function BEFORE applying redirect rules, so the SPA catch-all
+# below never shadows them. (An old /api/* → /.netlify/functions/:splat
+# rewrite was removed because it pointed at function names that don't exist
+# — the API is served from data.js at /api/... — and broke every API call.)
 [[redirects]]
   from = "/*"
   to = "/index.html"

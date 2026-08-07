@@ -2,9 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { apiRequest } from '../lib/api'
 
 // GET resource hook. Real API errors surface as { status: 'error' }; an
-// unreachable endpoint falls back to clearly-labelled sample data via `demo`.
-// `demo` is kept in a ref so callers may pass an inline closure without
-// triggering refetch loops.
+// unreachable endpoint falls back to a clearly-labelled empty state via
+// `demo` (the demo dataset is intentionally empty — the app never fabricates
+// data). `demo` is kept in a ref so callers may pass an inline closure
+// without triggering refetch loops.
 export function useApi(path, { demo } = {}) {
   const [state, setState] = useState({ status: 'loading', data: null, isDemo: false, error: null })
   const [tick, setTick] = useState(0)

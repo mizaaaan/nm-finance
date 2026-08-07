@@ -11,7 +11,9 @@ const EMPTY_FORM = { name: '', email: '', phone: '', role: 'member' }
 
 export default function Members() {
   const { isAdmin } = useAuth()
-  const { data, status, isDemo, error, refetch } = useApi('/api/members', { demo: demoMembers })
+  const { data, status, isDemo, error, refetch } = useApi('/api/members', {
+    demo: () => ({ members: demoMembers() })
+  })
   const members = data?.members || []
 
   const [modalOpen, setModalOpen] = useState(false)
@@ -80,7 +82,7 @@ export default function Members() {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {isDemo && (
             <span className="rounded-full border border-brass/40 bg-brass/10 px-3 py-1.5 text-[11px] font-medium text-ink/70">
-              Sample data
+              Offline · showing empty state
             </span>
           )}
           {listError && (
@@ -143,7 +145,7 @@ export default function Members() {
                 <span className="text-ink/60">{m.phone || '—'}</span>
               </div>
               <p className="tabular mt-3 text-xs text-ink/40">
-                Joined {m.joined_date || '—'}
+                Joined {m.joinedDate || m.joined_date || '—'}
               </p>
             </div>
           ))
@@ -162,7 +164,7 @@ export default function Members() {
             <ErrorBanner message={formError} />
             {isDemo && (
               <p className="rounded-md border border-brass/30 bg-brass/10 px-3 py-2 text-xs text-ink/70">
-                Sample data is showing — changes can't be saved until the database is connected.
+                The database isn't reachable — changes can't be saved until it's connected.
               </p>
             )}
             <Field label="Name" id="m-name" value={form.name} onChange={set('name')} required />

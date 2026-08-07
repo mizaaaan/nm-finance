@@ -107,7 +107,13 @@ export default async (req, context) => {
         contributions: num(monthly.contributions),
         expenses: num(monthly.expenses),
         dividends: num(monthly.dividends),
-        net: num(monthly.income) + num(monthly.contributions) - num(monthly.expenses)
+        // Net = money in (income + contributions) − money out (expenses + dividends),
+        // consistent with the all-time balance (inflow − outflow).
+        net:
+          num(monthly.income) +
+          num(monthly.contributions) -
+          num(monthly.expenses) -
+          num(monthly.dividends)
       },
       trend: trend.map((row) => ({
         month: row.month,

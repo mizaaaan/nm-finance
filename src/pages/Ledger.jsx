@@ -51,8 +51,8 @@ export default function Ledger() {
     }
   })
 
-  const membersApi = useApi('/api/members', { demo: demoMembers })
-  const carsApi = useApi('/api/cars', { demo: demoCars })
+  const membersApi = useApi('/api/members', { demo: () => ({ members: demoMembers() }) })
+  const carsApi = useApi('/api/cars', { demo: () => ({ cars: demoCars() }) })
   const members = membersApi.data?.members || []
   const cars = carsApi.data?.cars || []
 
@@ -65,14 +65,17 @@ export default function Ledger() {
   useEffect(() => {
     if (modal?.mode === 'edit' && modal.tx) {
       const tx = modal.tx
+      // API rows are camelized (memberId/carId); demo rows were snake_case.
+      const memberId = tx.memberId != null ? tx.memberId : tx.member_id
+      const carId = tx.carId != null ? tx.carId : tx.car_id
       setForm({
         type: tx.type,
         category: tx.category,
         amount: String(tx.amount),
         txn_date: tx.txnDate || tx.date || '',
         description: tx.description || '',
-        member_id: tx.member_id != null ? String(tx.member_id) : '',
-        car_id: tx.car_id != null ? String(tx.car_id) : ''
+        member_id: memberId != null ? String(memberId) : '',
+        car_id: carId != null ? String(carId) : ''
       })
       setFormError(null)
     } else if (modal?.mode === 'add') {
@@ -165,7 +168,7 @@ export default function Ledger() {
         </select>
         {isDemo && (
           <span className="rounded-full border border-brass/40 bg-brass/10 px-3 py-1.5 text-[11px] font-medium text-ink/70">
-            Sample data
+            Offline · showing empty state
           </span>
         )}
       </div>
@@ -198,7 +201,8 @@ export default function Ledger() {
               <tbody className="divide-y divide-rule/60">
                 {filtered.map((row) => {
                   const outflow = row.type === 'expense' || row.type === 'dividend'
-                  const related = row.member_name || row.car_name || '—'
+                  const related =
+                    row.memberName || row.member_name || row.carName || row.car_name || '—'
                   return (
                     <tr key={row.id} className="transition-colors hover:bg-paper/70">
                       <td className="tabular whitespace-nowrap px-5 py-3 text-ink/60">
@@ -262,7 +266,7 @@ export default function Ledger() {
             <ErrorBanner message={formError} />
             {isDemo && (
               <p className="rounded-md border border-brass/30 bg-brass/10 px-3 py-2 text-xs text-ink/70">
-                Sample data is showing — changes can't be saved until the database is connected.
+                The database isn't reachable — changes can't be saved until it's connected.
               </p>
             )}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

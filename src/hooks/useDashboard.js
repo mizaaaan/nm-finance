@@ -12,7 +12,8 @@ class ApiError extends Error {
 // Fetches /api/dashboard?month=YYYY-MM.
 //  • A real API error (4xx/5xx) is surfaced so deployment problems aren't hidden.
 //  • If the endpoint simply isn't there (local dev before the DB is provisioned,
-//    or the SPA fallback returns HTML), fall back to clearly-labelled sample data.
+//    or the SPA fallback returns HTML), fall back to a clearly-labelled empty
+//    state — demoData is intentionally empty, the app never fabricates figures.
 export function useDashboard(month) {
   const [state, setState] = useState({ status: 'loading', data: null, isDemo: false, error: null })
   const [tick, setTick] = useState(0)

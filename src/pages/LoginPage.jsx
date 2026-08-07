@@ -144,28 +144,28 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* decorative ledger snapshot */}
+        {/* decorative ledger snapshot — intentionally blank, no fabricated figures */}
         <div className="relative max-w-sm rounded-xl border border-white/10 bg-white/[0.04] p-6">
           <p className="tabular text-[10px] uppercase tracking-[0.2em] text-white/40">
-            Company ledger · snapshot
+            Company ledger
           </p>
           <ul className="mt-5 space-y-3">
-            {[
-              ['Rent income', '2,450,000.00'],
-              ['Member contributions', '1,180,000.00'],
-              ['Car expenses', '−486,250.00'],
-              ['Dividends paid', '−300,000.00']
-            ].map(([label, value]) => (
-              <li key={label} className="flex items-baseline justify-between gap-4">
-                <span className="text-sm text-white/60">{label}</span>
-                <span className="tabular text-sm text-white/90">{value}</span>
-              </li>
-            ))}
+            {['Rent income', 'Member contributions', 'Car expenses', 'Dividends paid'].map(
+              (label) => (
+                <li key={label} className="flex items-baseline justify-between gap-4">
+                  <span className="text-sm text-white/60">{label}</span>
+                  <span className="tabular text-sm text-white/30">—</span>
+                </li>
+              )
+            )}
             <li className="mt-4 flex items-baseline justify-between gap-4 border-t border-white/10 pt-4">
               <span className="text-sm text-white/70">Net balance</span>
-              <span className="tabular text-xl font-medium text-brass">2,843,750.00</span>
+              <span className="tabular text-xl font-medium text-brass">0.00</span>
             </li>
           </ul>
+          <p className="mt-4 text-xs leading-relaxed text-white/45">
+            Your real figures appear here once you add members, cars, and entries.
+          </p>
         </div>
 
         <p className="relative tabular text-[11px] uppercase tracking-[0.2em] text-white/40">

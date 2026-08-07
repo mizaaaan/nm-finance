@@ -18,9 +18,10 @@ No external services beyond GitHub + Netlify.
 
 All four screens are built and deployed: Dashboard, Ledger (full CRUD + filters),
 Members, and Cars. Backed by Netlify Functions (`/api/dashboard`, `/api/members`,
-`/api/cars`, `/api/transactions`, `/api/init`) against Netlify DB. The database
-schema is applied and a small set of sample members/cars/transactions has been
-seeded so the app is viewable immediately — delete them from the UI anytime.
+`/api/cars`, `/api/transactions`, `/api/init`, `/api/reset`) against Netlify DB.
+The database starts empty — add your own members, cars, and entries. To wipe
+everything and start over, use the admin-only **Reset all data** action on the
+dashboard (or `POST /api/reset`).
 
 Netlify Identity is enabled (open sign-up, email confirmation on).
 
@@ -37,6 +38,7 @@ Netlify Identity is enabled (open sign-up, email confirmation on).
 | `/api/transactions` | POST | Create a transaction |
 | `/api/transactions/:id` | PATCH, DELETE | Update / delete a transaction |
 | `/api/init` | POST | Apply the schema idempotently |
+| `/api/reset` | POST | Delete ALL data (members, cars, transactions) — admin only |
 
 ## Dashboard
 
@@ -46,8 +48,8 @@ profit, a 6-month cash-flow trend, per-member investment vs dividends, and
 recent activity straight from the database.
 
 Run the schema first (`db/schema.sql`) so the tables exist. If the database
-isn't reachable, the frontend falls back to clearly-labelled sample data so
-the UI remains viewable.
+isn't reachable, the frontend shows clearly-labelled empty states (never
+fabricated data) so the UI remains viewable.
 
 Query Netlify DB locally with:
 
@@ -58,7 +60,7 @@ netlify database status --show-credentials
 ## Permissions
 
 - **Read** (dashboard, members, cars, ledger): any signed-in Netlify Identity user.
-- **Write** (add / edit / delete, and `/api/init`): **admin only**.
+- **Write** (add / edit / delete, `/api/init`, and `/api/reset`): **admin only**.
 - **Admin** = Netlify Identity role `admin` (set in the Netlify dashboard:
   *Site settings → Identity → Users → pick a user → Roles*), **or** an email in
   `ADMIN_EMAILS` — default `md.mizan235@gmail.com`, extend via the Netlify env
