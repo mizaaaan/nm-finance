@@ -1,13 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { demoData } from '../lib/demoData'
-import { authToken } from '../lib/api'
-
-class ApiError extends Error {
-  constructor(message, status) {
-    super(message)
-    this.status = status
-  }
-}
+import { authToken, ApiError } from '../lib/api'
 
 // Fetches /api/dashboard?month=YYYY-MM.
 //  • A real API error (4xx/5xx) is surfaced so deployment problems aren't hidden.

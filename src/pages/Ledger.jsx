@@ -58,6 +58,7 @@ export default function Ledger() {
 
   const [modal, setModal] = useState(null) // { mode: 'add' | 'edit', tx } | null
   const [deleting, setDeleting] = useState(null)
+  const [deleteError, setDeleteError] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [formError, setFormError] = useState(null)
   const [busy, setBusy] = useState(false)
@@ -116,14 +117,14 @@ export default function Ledger() {
 
   async function handleDelete() {
     setBusy(true)
-    setFormError(null)
+    setDeleteError(null)
     try {
       await apiRequest(`/api/transactions/${deleting.id}`, { method: 'DELETE' })
       setDeleting(null)
       refetch()
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : 'Could not delete entry.')
-      setDeleting(null)
+      // Keep the modal open so the failure is visible instead of silently closing.
+      setDeleteError(err instanceof ApiError ? err.message : 'Could not delete entry.')
     } finally {
       setBusy(false)
     }
@@ -238,7 +239,10 @@ export default function Ledger() {
                             <button
                               type="button"
                               aria-label="Delete"
-                              onClick={() => setDeleting(row)}
+                              onClick={() => {
+                                setDeleteError(null)
+                                setDeleting(row)
+                              }}
                               className="ml-1 rounded-md p-2 text-ink/40 transition-colors hover:bg-loss/10 hover:text-loss"
                             >
                               <TrashIcon />
@@ -355,6 +359,11 @@ export default function Ledger() {
             Delete <span className="font-medium text-ink">{deleting.description || 'this entry'}</span>{' '}
             ({formatMoney(deleting.amount)})? This can't be undone.
           </p>
+          {deleteError && (
+            <div role="alert" className="mt-4 rounded-md border-l-2 border-loss bg-loss/5 px-3 py-2.5 text-sm text-loss">
+              {deleteError}
+            </div>
+          )}
           <div className="mt-6 flex justify-end gap-3">
             <button
               type="button"

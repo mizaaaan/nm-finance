@@ -156,6 +156,7 @@ export default function Dashboard() {
               onClick={() => {
                 setResetConfirm('')
                 setResetError(null)
+                setResetDone(false)
                 setResetOpen(true)
               }}
               className="rounded-md border border-loss/40 bg-card/70 px-4 py-2.5 text-sm font-semibold text-loss transition-all hover:bg-loss hover:text-white"

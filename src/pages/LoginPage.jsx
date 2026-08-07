@@ -109,7 +109,9 @@ export default function LoginPage() {
     setError(null)
     try {
       await resetPassword(urlTokens.recoveryToken, form.newPassword)
-      // New session is set → the redirect above takes over
+      // The session is now set — flip to sign-in so the redirect above takes over.
+      // (Staying in 'reset' mode would leave the user stuck on the form.)
+      switchMode('signin')
     } catch (err) {
       setError(err.message)
     } finally {

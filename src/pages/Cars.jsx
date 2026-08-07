@@ -33,6 +33,7 @@ export default function Cars() {
   const [deleting, setDeleting] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [formError, setFormError] = useState(null)
+  const [statusError, setStatusError] = useState(null)
   const [busy, setBusy] = useState(false)
 
   const set = (key) => (value) => setForm((f) => ({ ...f, [key]: value }))
@@ -63,12 +64,14 @@ export default function Cars() {
   }
 
   async function handleStatusChange(car, status) {
+    setStatusError(null)
     try {
       await apiRequest(`/api/cars/${car.id}`, { method: 'PATCH', body: { status } })
       refetch()
     } catch (err) {
-      // Non-critical; keep old value visually via refetch failure being silent
-      console.error('Status update failed:', err.message)
+      // Surface the failure — the select stays controlled by the saved value,
+      // so the unsaved choice snaps back once the error state re-renders.
+      setStatusError(`Couldn't update ${car.name}'s status: ${err.message}`)
     }
   }
 
@@ -109,11 +112,18 @@ export default function Cars() {
         )}
       </div>
 
-      {isDemo && (
-        <div className="mt-4">
-          <span className="rounded-full border border-brass/40 bg-brass/10 px-3 py-1.5 text-[11px] font-medium text-ink/70">
-            Offline · showing empty state
-          </span>
+      {(isDemo || statusError) && (
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          {isDemo && (
+            <span className="rounded-full border border-brass/40 bg-brass/10 px-3 py-1.5 text-[11px] font-medium text-ink/70">
+              Offline · showing empty state
+            </span>
+          )}
+          {statusError && (
+            <span role="alert" className="rounded-md border-l-2 border-loss bg-loss/5 px-3 py-1.5 text-xs text-loss">
+              {statusError}
+            </span>
+          )}
         </div>
       )}
 

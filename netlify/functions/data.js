@@ -16,6 +16,7 @@ const CATEGORIES = [
   'dividend_payout'
 ]
 const CAR_STATUSES = ['active', 'in_repair', 'sold']
+const MEMBER_ROLES = ['member', 'admin']
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -65,6 +66,9 @@ async function membersRoute(sql, method, id, body) {
     return json({ members: rows.map(camelize) })
   }
   if (method === 'POST') {
+    if (body.role && !MEMBER_ROLES.includes(body.role)) {
+      return json({ error: 'Invalid member role' }, 400)
+    }
     const [row] = await sql`
       INSERT INTO members (name, email, phone, role, joined_date)
       VALUES (${body.name}, ${orNull(body.email)}, ${orNull(body.phone)}, ${body.role || 'member'}, ${orNull(body.joined_date) || new Date().toISOString().slice(0, 10)})
@@ -73,6 +77,9 @@ async function membersRoute(sql, method, id, body) {
     return json({ member: camelize(row) }, 201)
   }
   if ((method === 'PATCH' || method === 'PUT') && id) {
+    if (body.role && !MEMBER_ROLES.includes(body.role)) {
+      return json({ error: 'Invalid member role' }, 400)
+    }
     const [row] = await sql`
       UPDATE members SET
         name = ${body.name ?? sql`name`},
@@ -86,7 +93,8 @@ async function membersRoute(sql, method, id, body) {
     return json({ member: camelize(row) })
   }
   if (method === 'DELETE' && id) {
-    await sql`DELETE FROM members WHERE id = ${id}`
+    const rows = await sql`DELETE FROM members WHERE id = ${id} RETURNING id`
+    if (!rows.length) return json({ error: 'Member not found' }, 404)
     return json({ ok: true })
   }
   return json({ error: 'Method not allowed' }, 405)
@@ -104,6 +112,9 @@ async function carsRoute(sql, method, id, body) {
     return json({ cars: rows.map(camelize) })
   }
   if (method === 'POST') {
+    if (body.status && !CAR_STATUSES.includes(body.status)) {
+      return json({ error: 'Invalid car status' }, 400)
+    }
     const [row] = await sql`
       INSERT INTO cars (name, registration_no, purchase_price, purchase_date, status)
       VALUES (${body.name}, ${orNull(body.registration_no)}, ${num(body.purchase_price)}, ${orNull(body.purchase_date)}, ${body.status || 'active'})
@@ -129,7 +140,8 @@ async function carsRoute(sql, method, id, body) {
     return json({ car: camelize(row) })
   }
   if (method === 'DELETE' && id) {
-    await sql`DELETE FROM cars WHERE id = ${id}`
+    const rows = await sql`DELETE FROM cars WHERE id = ${id} RETURNING id`
+    if (!rows.length) return json({ error: 'Car not found' }, 404)
     return json({ ok: true })
   }
   return json({ error: 'Method not allowed' }, 405)
@@ -220,7 +232,8 @@ async function transactionsRoute(sql, method, id, req, body) {
     return json({ transaction: camelize(row) })
   }
   if (method === 'DELETE' && id) {
-    await sql`DELETE FROM transactions WHERE id = ${id}`
+    const rows = await sql`DELETE FROM transactions WHERE id = ${id} RETURNING id`
+    if (!rows.length) return json({ error: 'Transaction not found' }, 404)
     return json({ ok: true })
   }
   return json({ error: 'Method not allowed' }, 405)
