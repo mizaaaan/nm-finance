@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import AppShell from '../components/AppShell'
 import Modal from '../components/Modal'
 import { Field, SelectField, ErrorBanner } from '../components/Field'
@@ -33,17 +33,24 @@ const TYPE_OPTIONS = [
   { value: 'dividend', label: 'Dividend' }
 ]
 
+// Must match the API's default page size (netlify/functions/data.js).
+const PAGE_SIZE = 200
+
 const EMPTY_FORM = { type: 'income', category: 'driver_rent', amount: '', txn_date: '', description: '', member_id: '', car_id: '' }
 
 export default function Ledger() {
   const { isAdmin } = useAuth()
   const [month, setMonth] = useState(currentMonth())
   const [type, setType] = useState('')
+  const [offset, setOffset] = useState(0)
 
   const base = `/api/transactions`
+  const filterKey = `${base}?month=${month}&type=${type}`
   const qs = new URLSearchParams()
   if (month) qs.set('month', month)
   if (type) qs.set('type', type)
+  qs.set('limit', String(PAGE_SIZE))
+  qs.set('offset', String(offset))
   const { data, status, isDemo, error, refetch } = useApi(`${base}?${qs}`, {
     demo: () => {
       const all = demoTransactions(month)
@@ -85,7 +92,48 @@ export default function Ledger() {
     }
   }, [modal])
 
-  const filtered = useMemo(() => data?.transactions || [], [data])
+  // Pagination: loaded pages accumulate so "Load more" appends instead of
+  // replacing the list. Fresh fetch results are the source of truth — a new
+  // page appends (deduped by id), while offset 0 (initial load, filter
+  // change, or a save/delete) replaces the list. Filter/mutation handlers
+  // reset the rows/offset explicitly; the dataRef guard stops this effect
+  // from applying stale results when only filterKey or offset change, and
+  // the stored key lets the empty state avoid the misleading "no entries"
+  // message while a filter change is still loading.
+  const dataRef = useRef({ data: null, key: '' })
+  // Guards "Load more" against a fast double-click: the button's disabled
+  // state lands one render after the offset changes, so without this a
+  // second click could skip a whole page (the in-flight request gets
+  // cancelled and its rows are never fetched). Set on click, cleared when
+  // the page's data actually arrives, on error, or when the list resets.
+  const loadMoreRef = useRef(false)
+  const [rows, setRows] = useState([])
+
+  useEffect(() => {
+    const txs = data?.transactions
+    if (!txs || dataRef.current.data === data) return
+    loadMoreRef.current = false
+    dataRef.current = { data, key: filterKey }
+    setRows((prev) => {
+      if (offset === 0 || !prev.length) return txs
+      const seen = new Set(prev.map((t) => t.id))
+      return [...prev, ...txs.filter((t) => !seen.has(t.id))]
+    })
+  }, [data, filterKey, offset])
+
+  // If a page request errors, release the lock so a later retry isn't blocked.
+  useEffect(() => {
+    if (status === 'error') loadMoreRef.current = false
+  }, [status])
+
+  // Back to the first page: clear the loaded rows so no stale page shows
+  // while the refetch is in flight, and blank the stored key so the empty
+  // state can't flash a misleading "no entries" mid-load.
+  function resetToFirstPage() {
+    setOffset(0)
+    setRows([])
+    dataRef.current.key = ''
+  }
 
   async function handleSave(e) {
     e.preventDefault()
@@ -107,6 +155,7 @@ export default function Ledger() {
         await apiRequest('/api/transactions', { method: 'POST', body: payload })
       }
       setModal(null)
+      resetToFirstPage()
       refetch()
     } catch (err) {
       setFormError(err.message)
@@ -121,6 +170,7 @@ export default function Ledger() {
     try {
       await apiRequest(`/api/transactions/${deleting.id}`, { method: 'DELETE' })
       setDeleting(null)
+      resetToFirstPage()
       refetch()
     } catch (err) {
       // Keep the modal open so the failure is visible instead of silently closing.
@@ -153,12 +203,18 @@ export default function Ledger() {
         <input
           type="month"
           value={month}
-          onChange={(e) => setMonth(e.target.value)}
+          onChange={(e) => {
+            setMonth(e.target.value)
+            resetToFirstPage()
+          }}
           className="w-full rounded-md border border-rule bg-card/70 px-3 py-2 text-sm text-ink outline-none focus:border-brass sm:w-auto"
         />
         <select
           value={type}
-          onChange={(e) => setType(e.target.value)}
+          onChange={(e) => {
+            setType(e.target.value)
+            resetToFirstPage()
+          }}
           className="w-full rounded-md border border-rule bg-card/70 px-3 py-2 text-sm text-ink outline-none focus:border-brass sm:w-auto"
         >
           {TYPE_OPTIONS.map((o) => (
@@ -176,14 +232,16 @@ export default function Ledger() {
 
       {/* table */}
       <div className="mt-4 overflow-hidden rounded-xl border border-rule bg-card/70">
-        {status === 'loading' && !filtered.length ? (
+        {status === 'loading' && !rows.length ? (
           <p className="px-6 py-10 text-center text-sm text-ink/50">Loading entries…</p>
         ) : status === 'error' ? (
           <p className="px-6 py-10 text-center text-sm text-loss">{error}</p>
-        ) : filtered.length === 0 ? (
+        ) : rows.length === 0 && dataRef.current.key === filterKey ? (
           <p className="px-6 py-10 text-center text-sm text-ink/50">
             No entries for this filter — try another month, or add the first entry.
           </p>
+        ) : rows.length === 0 ? (
+          <p className="px-6 py-10 text-center text-sm text-ink/50">Loading entries…</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[34rem] text-sm">
@@ -200,7 +258,7 @@ export default function Ledger() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-rule/60">
-                {filtered.map((row) => {
+                {rows.map((row) => {
                   const outflow = row.type === 'expense' || row.type === 'dividend'
                   const related =
                     row.memberName || row.member_name || row.carName || row.car_name || '—'
@@ -258,6 +316,24 @@ export default function Ledger() {
           </div>
         )}
       </div>
+
+      {/* load older entries — the API serves one page at a time */}
+      {!isDemo && status !== 'error' && rows.length > 0 && data?.transactions?.length === PAGE_SIZE && (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            disabled={status === 'loading'}
+            onClick={() => {
+              if (loadMoreRef.current) return
+              loadMoreRef.current = true
+              setOffset((o) => o + PAGE_SIZE)
+            }}
+            className="rounded-md border border-rule bg-card/70 px-4 py-2.5 text-sm font-medium text-ink/70 transition-colors hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {status === 'loading' ? 'Loading…' : 'Load more entries'}
+          </button>
+        </div>
+      )}
 
       {/* add / edit modal */}
       {modal && (

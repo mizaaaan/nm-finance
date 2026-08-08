@@ -174,6 +174,11 @@ async function transactionsRoute(sql, method, id, req, body) {
     }
     const where = parts.length ? `WHERE ${parts.join(' AND ')}` : ''
 
+    // Pagination: the Ledger loads pages of 200 (clamped 1–500) so entries
+    // beyond the newest page stay reachable for viewing, editing, and deletion.
+    const limit = Math.min(Math.max(Number(searchParams.get('limit')) || 200, 1), 500)
+    const offset = Math.max(Number(searchParams.get('offset')) || 0, 0)
+
     const rows = await sql.unsafe(
       `SELECT
         t.id, t.type, t.category, t.amount,
@@ -185,8 +190,8 @@ async function transactionsRoute(sql, method, id, req, body) {
       LEFT JOIN cars c ON c.id = t.car_id
       ${where}
       ORDER BY t.txn_date DESC, t.id DESC
-      LIMIT 200`,
-      params
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      [...params, limit, offset]
     )
     return json({ transactions: rows.map(camelize) })
   }

@@ -58,16 +58,27 @@ export default async (req, context) => {
       WHERE to_char(txn_date, 'YYYY-MM') = ${month}
     `
 
-    // Trailing 6 months (ending at the selected month) for the trend chart
+    // Trailing 6 months (ending at the selected month) for the trend chart.
+    // generate_series guarantees one row per calendar month (zero-filled when
+    // there are no transactions), so the chart axis is complete and the
+    // dashboard's "vs previous month" delta compares true calendar months.
     const trend = await sql`
-      SELECT to_char(txn_date, 'YYYY-MM') AS month,
-        COALESCE(SUM(CASE WHEN type IN ('income', 'contribution') THEN amount ELSE 0 END), 0) AS inflow,
-        COALESCE(SUM(CASE WHEN type IN ('expense', 'dividend') THEN amount ELSE 0 END), 0) AS outflow
-      FROM transactions
-      WHERE txn_date >= date_trunc('month', ${month}::date) - interval '5 months'
-        AND txn_date < date_trunc('month', ${month}::date) + interval '1 month'
-      GROUP BY 1
-      ORDER BY 1
+      WITH months AS (
+        SELECT generate_series(
+          date_trunc('month', ${month}::date) - interval '5 months',
+          date_trunc('month', ${month}::date),
+          interval '1 month'
+        ) AS month_start
+      )
+      SELECT to_char(months.month_start, 'YYYY-MM') AS month,
+        COALESCE(SUM(CASE WHEN t.type IN ('income', 'contribution') THEN t.amount ELSE 0 END), 0) AS inflow,
+        COALESCE(SUM(CASE WHEN t.type IN ('expense', 'dividend') THEN t.amount ELSE 0 END), 0) AS outflow
+      FROM months
+      LEFT JOIN transactions t
+        ON t.txn_date >= months.month_start
+        AND t.txn_date < months.month_start + interval '1 month'
+      GROUP BY months.month_start
+      ORDER BY months.month_start
     `
 
     // Per-member investment (contributions) vs dividends received

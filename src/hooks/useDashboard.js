@@ -14,7 +14,9 @@ export function useDashboard(month) {
   useEffect(() => {
     let cancelled = false
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 5000)
+    // Generous timeout: Netlify cold starts can take several seconds, and an
+    // abort here would fall back to the demo state and falsely show "Offline".
+    const timer = setTimeout(() => controller.abort(), 15000)
 
     setState({ status: 'loading', data: null, isDemo: false, error: null })
 
