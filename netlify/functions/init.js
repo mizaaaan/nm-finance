@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS cars (
 
 CREATE TABLE IF NOT EXISTS transactions (
   id            SERIAL PRIMARY KEY,
-  type          TEXT NOT NULL CHECK (type IN ('income', 'expense', 'contribution', 'dividend')),
+  type          TEXT NOT NULL CHECK (type IN ('income', 'expense', 'contribution', 'dividend', 'liability', 'receivable')),
   category      TEXT NOT NULL,
   amount        NUMERIC(12,2) NOT NULL CHECK (amount > 0),
   txn_date      DATE NOT NULL DEFAULT CURRENT_DATE,

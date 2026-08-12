@@ -3,17 +3,33 @@ import { requireUser, requireAdmin } from './_shared/auth.js'
 
 const CONNECTION_STRING = process.env.NETLIFY_DB_URL || process.env.DATABASE_URL
 
-const TYPES = ['income', 'expense', 'contribution', 'dividend']
+const TYPES = ['income', 'expense', 'contribution', 'dividend', 'liability', 'receivable']
 const CATEGORIES = [
+  // income
   'driver_rent',
   'other_income',
+  // contribution
   'member_contribution',
+  // expense
   'car_maintenance',
   'insurance',
   'registration',
   'fuel',
   'office_expense',
-  'dividend_payout'
+  'transportation',
+  'food_entertainment',
+  'mobile_internet',
+  'depreciation',
+  // dividend
+  'dividend_payout',
+  // liability — cash held that isn't company income yet
+  'security_deposit_received',
+  'security_deposit_refunded',
+  'advance_rent_received',
+  'advance_rent_recognized',
+  // receivable — money owed to the company (e.g. by a driver after an accident)
+  'accident_fine_receivable_add',
+  'accident_fine_receivable_paid'
 ]
 const CAR_STATUSES = ['active', 'in_repair', 'sold']
 const MEMBER_ROLES = ['member', 'admin']

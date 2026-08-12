@@ -20,9 +20,23 @@ const CATEGORIES_BY_TYPE = {
     { value: 'insurance', label: 'Insurance' },
     { value: 'registration', label: 'Registration' },
     { value: 'fuel', label: 'Fuel' },
-    { value: 'office_expense', label: 'Office expense' }
+    { value: 'office_expense', label: 'Office expense' },
+    { value: 'transportation', label: 'Transportation' },
+    { value: 'food_entertainment', label: 'Food / entertainment' },
+    { value: 'mobile_internet', label: 'Mobile & internet bill' },
+    { value: 'depreciation', label: 'Depreciation (vehicles)' }
   ],
-  dividend: [{ value: 'dividend_payout', label: 'Dividend payout' }]
+  dividend: [{ value: 'dividend_payout', label: 'Dividend payout' }],
+  liability: [
+    { value: 'security_deposit_received', label: 'Security deposit received' },
+    { value: 'security_deposit_refunded', label: 'Security deposit refunded' },
+    { value: 'advance_rent_received', label: 'Advance rent received' },
+    { value: 'advance_rent_recognized', label: 'Advance rent recognized (earned)' }
+  ],
+  receivable: [
+    { value: 'accident_fine_receivable_add', label: 'Driver owes us (accident/fine)' },
+    { value: 'accident_fine_receivable_paid', label: 'Driver repaid us' }
+  ]
 }
 
 const TYPE_OPTIONS = [
@@ -30,7 +44,9 @@ const TYPE_OPTIONS = [
   { value: 'income', label: 'Income' },
   { value: 'contribution', label: 'Contribution' },
   { value: 'expense', label: 'Expense' },
-  { value: 'dividend', label: 'Dividend' }
+  { value: 'dividend', label: 'Dividend' },
+  { value: 'liability', label: 'Liability' },
+  { value: 'receivable', label: 'Receivable' }
 ]
 
 // Must match the API's default page size (netlify/functions/data.js).

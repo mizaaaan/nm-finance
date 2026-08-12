@@ -10,7 +10,17 @@ const CATEGORY_LABELS = {
   registration: 'Registration',
   fuel: 'Fuel',
   office_expense: 'Office',
-  dividend_payout: 'Dividend'
+  transportation: 'Transportation',
+  food_entertainment: 'Food / entertainment',
+  mobile_internet: 'Mobile & internet',
+  depreciation: 'Depreciation',
+  dividend_payout: 'Dividend',
+  security_deposit_received: 'Deposit received',
+  security_deposit_refunded: 'Deposit refunded',
+  advance_rent_received: 'Advance rent received',
+  advance_rent_recognized: 'Advance rent recognized',
+  accident_fine_receivable_add: 'Driver owes us',
+  accident_fine_receivable_paid: 'Driver repaid us'
 }
 
 export default function RecentTable({ rows }) {

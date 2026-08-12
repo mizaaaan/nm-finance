@@ -39,11 +39,37 @@ export default async (req, context) => {
   const sql = postgres(CONNECTION_STRING, { ssl: 'require', max: 1 })
 
   try {
-    // All-time company balance
+    // All-time company cash balance. Liability/receivable rows move real cash
+    // (a deposit received, a driver repaying an accident cost) but are NOT
+    // income or expense — the categories below say which side of the ledger
+    // each one lands on. Profit (below) stays untouched by these.
     const [totals] = await sql`
       SELECT
-        COALESCE(SUM(CASE WHEN type IN ('income', 'contribution') THEN amount ELSE 0 END), 0) AS inflow,
-        COALESCE(SUM(CASE WHEN type IN ('expense', 'dividend') THEN amount ELSE 0 END), 0) AS outflow
+        COALESCE(SUM(CASE
+          WHEN type IN ('income', 'contribution') THEN amount
+          WHEN type = 'liability' AND category IN ('security_deposit_received', 'advance_rent_received') THEN amount
+          WHEN type = 'receivable' AND category = 'accident_fine_receivable_paid' THEN amount
+          ELSE 0 END), 0) AS inflow,
+        COALESCE(SUM(CASE
+          WHEN type IN ('expense', 'dividend') THEN amount
+          WHEN type = 'liability' AND category = 'security_deposit_refunded' THEN amount
+          ELSE 0 END), 0) AS outflow
+      FROM transactions
+    `
+
+    // Outstanding liability (money held that isn't ours yet) and receivable
+    // (money owed to us) balances — mirrors the "Customer Security Deposit"
+    // and "Accident Recovery Receivable" figures on your account file.
+    const [balances] = await sql`
+      SELECT
+        COALESCE(SUM(CASE
+          WHEN type = 'liability' AND category IN ('security_deposit_received', 'advance_rent_received') THEN amount
+          WHEN type = 'liability' AND category IN ('security_deposit_refunded', 'advance_rent_recognized') THEN -amount
+          ELSE 0 END), 0) AS liability_balance,
+        COALESCE(SUM(CASE
+          WHEN type = 'receivable' AND category = 'accident_fine_receivable_add' THEN amount
+          WHEN type = 'receivable' AND category = 'accident_fine_receivable_paid' THEN -amount
+          ELSE 0 END), 0) AS receivable_balance
       FROM transactions
     `
 
@@ -112,6 +138,8 @@ export default async (req, context) => {
     return json({
       asOf: now.toISOString(),
       balance: { inflow, outflow, net: inflow - outflow },
+      liabilityBalance: num(balances.liability_balance),
+      receivableBalance: num(balances.receivable_balance),
       month,
       monthly: {
         income: num(monthly.income),

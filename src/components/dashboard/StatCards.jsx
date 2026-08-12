@@ -29,6 +29,16 @@ export default function StatCards({ data }) {
       value: monthly.expenses,
       sub: `Dividends paid ${formatCompact(monthly.dividends)}`,
       positive: false
+    },
+    {
+      label: 'Liabilities held',
+      value: data.liabilityBalance ?? 0,
+      sub: 'Deposits & advance rent not yet earned'
+    },
+    {
+      label: 'Receivable outstanding',
+      value: data.receivableBalance ?? 0,
+      sub: 'Owed to us (e.g. accident recovery)'
     }
   ]
 

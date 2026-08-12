@@ -25,9 +25,8 @@ CREATE TABLE IF NOT EXISTS cars (
 -- category defines what it is; type defines the money direction.
 CREATE TABLE IF NOT EXISTS transactions (
   id            SERIAL PRIMARY KEY,
-  type          TEXT NOT NULL CHECK (type IN ('income', 'expense', 'contribution', 'dividend')),
-  category      TEXT NOT NULL,   -- 'driver_rent' | 'member_contribution' | 'other_income' |
-                                  -- 'car_maintenance' | 'insurance' | 'registration' | 'fuel' | 'office_expense'
+  type          TEXT NOT NULL CHECK (type IN ('income', 'expense', 'contribution', 'dividend', 'liability', 'receivable')),
+  category      TEXT NOT NULL,   -- see full list at the bottom of this file
   amount        NUMERIC(12,2) NOT NULL CHECK (amount > 0),
   txn_date      DATE NOT NULL DEFAULT CURRENT_DATE,
   description   TEXT,
@@ -41,8 +40,15 @@ CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(txn_date);
 CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
 CREATE INDEX IF NOT EXISTS idx_transactions_member ON transactions(member_id);
 
--- Seed starter categories reference (not enforced by FK, just documentation):
--- income:        driver_rent, other_income
--- contribution:  member_contribution
--- expense:       car_maintenance, insurance, registration, fuel, office_expense
--- dividend:      dividend_payout
+-- Category reference (not enforced by FK — the app's netlify/functions/data.js
+-- validates against its own CATEGORIES list, keep both in sync):
+-- income:       driver_rent, other_income
+-- contribution: member_contribution
+-- expense:      car_maintenance, insurance, registration, fuel, office_expense,
+--               transportation, food_entertainment, mobile_internet, depreciation
+-- dividend:     dividend_payout
+-- liability:    security_deposit_received, security_deposit_refunded,
+--               advance_rent_received, advance_rent_recognized
+--               (cash received that ISN'T company income until earned/refunded)
+-- receivable:   accident_fine_receivable_add, accident_fine_receivable_paid
+--               (money a driver owes the company, e.g. after an accident)
