@@ -82,7 +82,7 @@ async function membersRoute(sql, method, id, body) {
     return json({ members: rows.map(camelize) })
   }
   if (method === 'POST') {
-    if (body.role && !MEMBER_ROLES.includes(body.role)) {
+    if (body.role !== undefined && !MEMBER_ROLES.includes(body.role)) {
       return json({ error: 'Invalid member role' }, 400)
     }
     const [row] = await sql`
@@ -93,7 +93,7 @@ async function membersRoute(sql, method, id, body) {
     return json({ member: camelize(row) }, 201)
   }
   if ((method === 'PATCH' || method === 'PUT') && id) {
-    if (body.role && !MEMBER_ROLES.includes(body.role)) {
+    if (body.role !== undefined && !MEMBER_ROLES.includes(body.role)) {
       return json({ error: 'Invalid member role' }, 400)
     }
     const [row] = await sql`
@@ -128,7 +128,7 @@ async function carsRoute(sql, method, id, body) {
     return json({ cars: rows.map(camelize) })
   }
   if (method === 'POST') {
-    if (body.status && !CAR_STATUSES.includes(body.status)) {
+    if (body.status !== undefined && !CAR_STATUSES.includes(body.status)) {
       return json({ error: 'Invalid car status' }, 400)
     }
     const [row] = await sql`
@@ -139,7 +139,7 @@ async function carsRoute(sql, method, id, body) {
     return json({ car: camelize(row) }, 201)
   }
   if ((method === 'PATCH' || method === 'PUT') && id) {
-    if (body.status && !CAR_STATUSES.includes(body.status)) {
+    if (body.status !== undefined && !CAR_STATUSES.includes(body.status)) {
       return json({ error: 'Invalid car status' }, 400)
     }
     const [row] = await sql`
@@ -212,8 +212,8 @@ async function transactionsRoute(sql, method, id, req, body) {
     return json({ transactions: rows.map(camelize) })
   }
   if (method === 'POST') {
-    if (!TYPES.includes(body.type)) return json({ error: 'Invalid transaction type' }, 400)
-    if (!CATEGORIES.includes(body.category)) return json({ error: 'Invalid category' }, 400)
+    if (!body.type || !TYPES.includes(body.type)) return json({ error: 'Invalid transaction type' }, 400)
+    if (!body.category || !CATEGORIES.includes(body.category)) return json({ error: 'Invalid category' }, 400)
     if (!num(body.amount) || num(body.amount) <= 0) return json({ error: 'Amount must be greater than 0' }, 400)
 
     const [row] = await sql`
@@ -233,9 +233,9 @@ async function transactionsRoute(sql, method, id, req, body) {
     return json({ transaction: camelize(row) }, 201)
   }
   if ((method === 'PATCH' || method === 'PUT') && id) {
-    if (body.type && !TYPES.includes(body.type)) return json({ error: 'Invalid transaction type' }, 400)
-    if (body.category && !CATEGORIES.includes(body.category)) return json({ error: 'Invalid category' }, 400)
-    if (body.amount !== undefined && num(body.amount) <= 0) return json({ error: 'Amount must be greater than 0' }, 400)
+    if (body.type !== undefined && !TYPES.includes(body.type)) return json({ error: 'Invalid transaction type' }, 400)
+    if (body.category !== undefined && !CATEGORIES.includes(body.category)) return json({ error: 'Invalid category' }, 400)
+    if (body.amount !== undefined && (!num(body.amount) || num(body.amount) <= 0)) return json({ error: 'Amount must be greater than 0' }, 400)
 
     const [row] = await sql`
       UPDATE transactions SET

@@ -48,7 +48,7 @@ const CONNECTION_STRING = process.env.NETLIFY_DB_URL || process.env.DATABASE_URL
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
   })
 
 export default async (req, context) => {
