@@ -30,12 +30,18 @@ export function ThemeProvider({ children }) {
     const root = document.documentElement
     root.classList.toggle('dark', theme === 'dark')
     root.style.colorScheme = theme
+  }, [theme])
+
+  // Persist only an explicit choice — saving the auto-detected theme would
+  // permanently stop the app from following the OS setting after first visit.
+  useEffect(() => {
+    if (!explicit) return
     try {
       localStorage.setItem(STORAGE_KEY, theme)
     } catch {
       /* ignore write failures (private mode, storage quota, etc.) */
     }
-  }, [theme])
+  }, [theme, explicit])
 
   // Follow the OS preference live until the user makes an explicit choice.
   useEffect(() => {

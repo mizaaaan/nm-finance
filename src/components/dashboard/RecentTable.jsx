@@ -1,4 +1,4 @@
-import { formatMoney } from '../../lib/format'
+import { formatMoney, isOutflow } from '../../lib/format'
 import TypeChip from '../TypeChip'
 
 const CATEGORY_LABELS = {
@@ -49,7 +49,7 @@ export default function RecentTable({ rows }) {
               </thead>
               <tbody className="divide-y divide-rule/60">
                 {rows.map((row) => {
-                  const outflow = row.type === 'expense' || row.type === 'dividend'
+                  const outflow = isOutflow(row.type, row.category)
                   return (
                     <tr key={row.id} className="transition-colors hover:bg-paper/70">
                       <td className="tabular whitespace-nowrap px-5 py-3 text-ink/60">{row.date}</td>

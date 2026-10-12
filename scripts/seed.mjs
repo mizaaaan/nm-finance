@@ -22,9 +22,9 @@ import postgres from 'postgres'
 // profit/loss differs from the accrual P&L by that amount. The receivable
 // balance and liability balance are tracked separately on the dashboard.
 
-const DB = process.env.DATABASE_URL
+const DB = process.env.NETLIFY_DB_URL || process.env.DATABASE_URL
 if (!DB) {
-  console.error('DATABASE_URL not set. Source .env or export it.')
+  console.error('NETLIFY_DB_URL / DATABASE_URL not set. Source .env or export it.')
   process.exit(1)
 }
 

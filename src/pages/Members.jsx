@@ -113,6 +113,7 @@ export default function Members() {
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brass/15 text-sm font-semibold text-brass">
                     {m.name
                       .split(' ')
+                      .filter(Boolean)
                       .map((p) => p[0])
                       .slice(0, 2)
                       .join('')

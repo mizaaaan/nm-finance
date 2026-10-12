@@ -6,7 +6,7 @@ import TypeChip from '../components/TypeChip'
 import { useAuth } from '../context/AuthContext'
 import { useApi } from '../hooks/useApi'
 import { apiRequest, ApiError } from '../lib/api'
-import { formatMoney, currentMonth } from '../lib/format'
+import { formatMoney, currentMonth, todayISO, isOutflow } from '../lib/format'
 import { demoMembers, demoCars, demoTransactions } from '../lib/demoData'
 
 const CATEGORIES_BY_TYPE = {
@@ -52,7 +52,7 @@ const TYPE_OPTIONS = [
 // Must match the API's default page size (netlify/functions/data.js).
 const PAGE_SIZE = 200
 
-const EMPTY_FORM = { type: 'income', category: 'driver_rent', amount: '', txn_date: '', description: '', member_id: '', car_id: '' }
+const emptyForm = () => ({ type: 'income', category: 'driver_rent', amount: '', txn_date: todayISO(), description: '', member_id: '', car_id: '' })
 
 export default function Ledger() {
   const { isAdmin } = useAuth()
@@ -82,7 +82,7 @@ export default function Ledger() {
   const [modal, setModal] = useState(null) // { mode: 'add' | 'edit', tx } | null
   const [deleting, setDeleting] = useState(null)
   const [deleteError, setDeleteError] = useState(null)
-  const [form, setForm] = useState(EMPTY_FORM)
+  const [form, setForm] = useState(emptyForm)
   const [formError, setFormError] = useState(null)
   const [busy, setBusy] = useState(false)
 
@@ -103,7 +103,7 @@ export default function Ledger() {
       })
       setFormError(null)
     } else if (modal?.mode === 'add') {
-      setForm(EMPTY_FORM)
+      setForm(emptyForm())
       setFormError(null)
     }
   }, [modal])
@@ -155,14 +155,18 @@ export default function Ledger() {
     e.preventDefault()
     setBusy(true)
     setFormError(null)
+    const memberApplies = form.type === 'contribution' || form.type === 'dividend'
+    const carApplies = form.type === 'income' || form.type === 'expense'
     const payload = {
       type: form.type,
       category: form.category,
       amount: Number(form.amount),
       txn_date: form.txn_date,
       description: form.description || null,
-      member_id: form.member_id ? Number(form.member_id) : null,
-      car_id: form.car_id ? Number(form.car_id) : null
+      // Only send the link that applies to this type, so switching type in the
+      // form can't leave a hidden member/car attached.
+      member_id: memberApplies && form.member_id ? Number(form.member_id) : null,
+      car_id: carApplies && form.car_id ? Number(form.car_id) : null
     }
     try {
       if (modal.mode === 'edit') {
@@ -275,7 +279,7 @@ export default function Ledger() {
               </thead>
               <tbody className="divide-y divide-rule/60">
                 {rows.map((row) => {
-                  const outflow = row.type === 'expense' || row.type === 'dividend'
+                  const outflow = isOutflow(row.type, row.category)
                   const related =
                     row.memberName || row.member_name || row.carName || row.car_name || '—'
                   return (
@@ -299,8 +303,8 @@ export default function Ledger() {
                         {outflow ? '−' : '+'}
                         {formatMoney(row.amount)}
                       </td>
+                      {isAdmin && (
                       <td className="whitespace-nowrap px-5 py-3 text-right">
-                        {isAdmin && (
                           <>
                             <button
                               type="button"
@@ -322,8 +326,8 @@ export default function Ledger() {
                               <TrashIcon />
                             </button>
                           </>
-                        )}
                       </td>
+                      )}
                     </tr>
                   )
                 })}
@@ -371,7 +375,7 @@ export default function Ledger() {
                 id="tx-type"
                 value={form.type}
                 onChange={(v) => setForm((f) => ({ ...f, type: v, category: CATEGORIES_BY_TYPE[v][0].value }))}
-                options={Object.keys(CATEGORIES_BY_TYPE).map((t) => ({ value: t, label: t }))}
+                options={TYPE_OPTIONS.filter((o) => o.value)}
               />
               <SelectField
                 label="Category"
@@ -385,7 +389,7 @@ export default function Ledger() {
                 id="tx-amount"
                 type="number"
                 step="0.01"
-                min="0"
+                min="0.01"
                 value={form.amount}
                 onChange={(v) => setForm((f) => ({ ...f, amount: v }))}
                 required
@@ -404,7 +408,8 @@ export default function Ledger() {
                   id="tx-member"
                   value={form.member_id}
                   onChange={(v) => setForm((f) => ({ ...f, member_id: v }))}
-                  options={[{ value: '', label: '—' }, ...members.map((m) => ({ value: String(m.id), label: m.name }))]}
+                  options={[{ value: '', label: 'Select a member…' }, ...members.map((m) => ({ value: String(m.id), label: m.name }))]}
+                  required
                 />
               )}
               {(form.type === 'income' || form.type === 'expense') && (

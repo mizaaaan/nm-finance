@@ -101,8 +101,12 @@ export function AuthProvider({ children }) {
 
       signOut: async () => {
         const current = auth.currentUser()
-        if (current) await current.logout()
-        setUser(null)
+        try {
+          if (current) await current.logout()
+        } finally {
+          // Always clear the local session, even if the network call failed.
+          setUser(null)
+        }
       },
 
       sendRecovery: async (email) => auth.requestPasswordRecovery(email),

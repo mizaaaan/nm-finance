@@ -37,3 +37,16 @@ export function shortMonth(ym) {
   const [y, m] = ym.split('-').map(Number)
   return new Date(y, m - 1, 1).toLocaleDateString('en-GB', { month: 'short' })
 }
+
+// Local-time YYYY-MM-DD (toISOString would give the UTC date, which is the
+// previous day for early-morning entries east of UTC, e.g. Bangladesh).
+export function todayISO() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+// True when a transaction moves cash OUT of the company (matches the
+// dashboard's outflow logic: expenses, dividends and deposit refunds).
+export function isOutflow(type, category) {
+  return type === 'expense' || type === 'dividend' || category === 'security_deposit_refunded'
+}

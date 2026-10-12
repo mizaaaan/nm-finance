@@ -14,6 +14,7 @@ export default function AppShell({ children }) {
   const name = user?.user_metadata?.full_name || user?.email
   const initials = (name || '?')
     .split(' ')
+    .filter(Boolean)
     .map((part) => part[0])
     .slice(0, 2)
     .join('')
@@ -84,7 +85,7 @@ export default function AppShell({ children }) {
       {/* ── Main column ── */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar */}
-        <div className="flex items-center justify-between gap-3 border-b border-rule bg-card/60 px-4 py-3 sm:px-5">
+        <div className="flex items-center justify-between gap-3 border-b border-rule bg-card/60 px-4 py-3 sm:px-5 md:hidden">
           <div className="min-w-0">
             <p className="font-display truncate text-lg leading-none text-ink">
               Next Millionaire Finance

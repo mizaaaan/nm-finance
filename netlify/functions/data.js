@@ -31,6 +31,29 @@ const CATEGORIES = [
   'accident_fine_receivable_add',
   'accident_fine_receivable_paid'
 ]
+// Which transaction type each category belongs to (keeps type and category
+// consistent — e.g. a 'fuel' row can never be saved as 'income').
+const CATEGORY_TYPE = {
+  driver_rent: 'income',
+  other_income: 'income',
+  member_contribution: 'contribution',
+  car_maintenance: 'expense',
+  insurance: 'expense',
+  registration: 'expense',
+  fuel: 'expense',
+  office_expense: 'expense',
+  transportation: 'expense',
+  food_entertainment: 'expense',
+  mobile_internet: 'expense',
+  depreciation: 'expense',
+  dividend_payout: 'dividend',
+  security_deposit_received: 'liability',
+  security_deposit_refunded: 'liability',
+  advance_rent_received: 'liability',
+  advance_rent_recognized: 'liability',
+  accident_fine_receivable_add: 'receivable',
+  accident_fine_receivable_paid: 'receivable'
+}
 const CAR_STATUSES = ['active', 'in_repair', 'sold']
 const MEMBER_ROLES = ['member', 'admin']
 
@@ -41,6 +64,14 @@ const json = (body, status = 200) =>
   })
 
 const num = (value) => Number(value) || 0
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+const isValidDate = (value) => {
+  if (typeof value !== 'string' || !DATE_RE.test(value)) return false
+  const d = new Date(`${value}T00:00:00Z`)
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === value
+}
+const isPositiveAmount = (value) => Number.isFinite(Number(value)) && Number(value) > 0
+const cleanName = (value) => (typeof value === 'string' ? value.trim() : '')
 const orNull = (value) => (value === '' || value === undefined || value === null ? null : value)
 const camelize = (row) =>
   Object.fromEntries(
@@ -64,6 +95,15 @@ async function withDb(handler) {
   try {
     return await handler(sql)
   } catch (error) {
+    // Turn the most common Postgres failures into readable 4xx responses.
+    if (error.code === '23505') {
+      const what = /email/.test(error.constraint_name || error.detail || '')
+        ? 'email address'
+        : 'registration number'
+      return json({ error: `That ${what} is already in use.` }, 409)
+    }
+    if (error.code === '23503') return json({ error: 'The selected member or car no longer exists.' }, 400)
+    if (['22007', '22008', '22P02'].includes(error.code)) return json({ error: 'Invalid value in the request.' }, 400)
     return json({ error: error.message }, 500)
   } finally {
     await sql.end().catch(() => {})
@@ -82,12 +122,14 @@ async function membersRoute(sql, method, id, body) {
     return json({ members: rows.map(camelize) })
   }
   if (method === 'POST') {
+    if (!cleanName(body.name)) return json({ error: 'Name is required' }, 400)
     if (body.role !== undefined && !MEMBER_ROLES.includes(body.role)) {
       return json({ error: 'Invalid member role' }, 400)
     }
+    if (orNull(body.joined_date) && !isValidDate(body.joined_date)) return json({ error: 'Invalid joined date' }, 400)
     const [row] = await sql`
       INSERT INTO members (name, email, phone, role, joined_date)
-      VALUES (${body.name}, ${orNull(body.email)}, ${orNull(body.phone)}, ${body.role || 'member'}, ${orNull(body.joined_date) || new Date().toISOString().slice(0, 10)})
+      VALUES (${cleanName(body.name)}, ${orNull(body.email)}, ${orNull(body.phone)}, ${body.role || 'member'}, ${orNull(body.joined_date) || new Date().toISOString().slice(0, 10)})
       RETURNING *
     `
     return json({ member: camelize(row) }, 201)
@@ -96,9 +138,10 @@ async function membersRoute(sql, method, id, body) {
     if (body.role !== undefined && !MEMBER_ROLES.includes(body.role)) {
       return json({ error: 'Invalid member role' }, 400)
     }
+    if (body.name !== undefined && !cleanName(body.name)) return json({ error: 'Name is required' }, 400)
     const [row] = await sql`
       UPDATE members SET
-        name = ${body.name ?? sql`name`},
+        name = ${body.name !== undefined ? cleanName(body.name) : sql`name`},
         email = ${body.email !== undefined ? orNull(body.email) : sql`email`},
         phone = ${body.phone !== undefined ? orNull(body.phone) : sql`phone`},
         role = ${body.role ?? sql`role`}
@@ -128,12 +171,15 @@ async function carsRoute(sql, method, id, body) {
     return json({ cars: rows.map(camelize) })
   }
   if (method === 'POST') {
+    if (!cleanName(body.name)) return json({ error: 'Name is required' }, 400)
     if (body.status !== undefined && !CAR_STATUSES.includes(body.status)) {
       return json({ error: 'Invalid car status' }, 400)
     }
+    if (orNull(body.purchase_date) && !isValidDate(body.purchase_date)) return json({ error: 'Invalid purchase date' }, 400)
+    if (num(body.purchase_price) < 0) return json({ error: 'Purchase price cannot be negative' }, 400)
     const [row] = await sql`
       INSERT INTO cars (name, registration_no, purchase_price, purchase_date, status)
-      VALUES (${body.name}, ${orNull(body.registration_no)}, ${num(body.purchase_price)}, ${orNull(body.purchase_date)}, ${body.status || 'active'})
+      VALUES (${cleanName(body.name)}, ${orNull(body.registration_no)}, ${num(body.purchase_price)}, ${orNull(body.purchase_date)}, ${body.status || 'active'})
       RETURNING *
     `
     return json({ car: camelize(row) }, 201)
@@ -142,9 +188,12 @@ async function carsRoute(sql, method, id, body) {
     if (body.status !== undefined && !CAR_STATUSES.includes(body.status)) {
       return json({ error: 'Invalid car status' }, 400)
     }
+    if (body.name !== undefined && !cleanName(body.name)) return json({ error: 'Name is required' }, 400)
+    if (orNull(body.purchase_date) && !isValidDate(body.purchase_date)) return json({ error: 'Invalid purchase date' }, 400)
+    if (body.purchase_price !== undefined && num(body.purchase_price) < 0) return json({ error: 'Purchase price cannot be negative' }, 400)
     const [row] = await sql`
       UPDATE cars SET
-        name = ${body.name ?? sql`name`},
+        name = ${body.name !== undefined ? cleanName(body.name) : sql`name`},
         registration_no = ${body.registration_no !== undefined ? orNull(body.registration_no) : sql`registration_no`},
         purchase_price = ${body.purchase_price !== undefined ? num(body.purchase_price) : sql`purchase_price`},
         purchase_date = ${body.purchase_date !== undefined ? orNull(body.purchase_date) : sql`purchase_date`},
@@ -214,7 +263,9 @@ async function transactionsRoute(sql, method, id, req, body) {
   if (method === 'POST') {
     if (!body.type || !TYPES.includes(body.type)) return json({ error: 'Invalid transaction type' }, 400)
     if (!body.category || !CATEGORIES.includes(body.category)) return json({ error: 'Invalid category' }, 400)
-    if (!num(body.amount) || num(body.amount) <= 0) return json({ error: 'Amount must be greater than 0' }, 400)
+    if (CATEGORY_TYPE[body.category] !== body.type) return json({ error: 'Category does not match the transaction type' }, 400)
+    if (!isPositiveAmount(body.amount)) return json({ error: 'Amount must be greater than 0' }, 400)
+    if (body.txn_date && !isValidDate(body.txn_date)) return json({ error: 'Invalid date' }, 400)
 
     const [row] = await sql`
       INSERT INTO transactions (type, category, amount, txn_date, description, car_id, member_id, created_by)
@@ -235,7 +286,17 @@ async function transactionsRoute(sql, method, id, req, body) {
   if ((method === 'PATCH' || method === 'PUT') && id) {
     if (body.type !== undefined && !TYPES.includes(body.type)) return json({ error: 'Invalid transaction type' }, 400)
     if (body.category !== undefined && !CATEGORIES.includes(body.category)) return json({ error: 'Invalid category' }, 400)
-    if (body.amount !== undefined && (!num(body.amount) || num(body.amount) <= 0)) return json({ error: 'Amount must be greater than 0' }, 400)
+    if (body.amount !== undefined && !isPositiveAmount(body.amount)) return json({ error: 'Amount must be greater than 0' }, 400)
+    if (body.txn_date !== undefined && !isValidDate(body.txn_date)) return json({ error: 'Invalid date' }, 400)
+
+    // Type and category must stay consistent after a partial update too.
+    if (body.type !== undefined || body.category !== undefined) {
+      const [current] = await sql`SELECT type, category FROM transactions WHERE id = ${id}`
+      if (!current) return json({ error: 'Transaction not found' }, 404)
+      const nextType = body.type ?? current.type
+      const nextCategory = body.category ?? current.category
+      if (CATEGORY_TYPE[nextCategory] !== nextType) return json({ error: 'Category does not match the transaction type' }, 400)
+    }
 
     const [row] = await sql`
       UPDATE transactions SET

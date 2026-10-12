@@ -77,13 +77,13 @@ export default function Cars() {
 
   async function handleDelete() {
     setBusy(true)
-    setFormError(null)
+    setStatusError(null)
     try {
       await apiRequest(`/api/cars/${deleting.id}`, { method: 'DELETE' })
       setDeleting(null)
       refetch()
     } catch (err) {
-      setFormError(err.message)
+      setStatusError(`Couldn't delete ${deleting.name}: ${err.message}`)
       setDeleting(null)
     } finally {
       setBusy(false)

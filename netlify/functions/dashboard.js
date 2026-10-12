@@ -91,8 +91,8 @@ export default async (req, context) => {
     const trend = await sql`
       WITH months AS (
         SELECT generate_series(
-          date_trunc('month', ${month}::date) - interval '5 months',
-          date_trunc('month', ${month}::date),
+          date_trunc('month', ${month + '-01'}::date) - interval '5 months',
+          date_trunc('month', ${month + '-01'}::date),
           interval '1 month'
         ) AS month_start
       )
