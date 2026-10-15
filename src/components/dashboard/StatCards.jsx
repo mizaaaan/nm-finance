@@ -43,13 +43,13 @@ export default function StatCards({ data }) {
   ]
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {cards.map((card) => (
         <div
           key={card.label}
-          className="rounded-xl border border-rule bg-card/70 p-5 transition-shadow hover:shadow-[0_16px_40px_-24px_rgba(15,31,61,0.3)]"
+          className="rounded-xl border border-rule bg-card/70 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-brass hover:shadow-[0_8px_24px_rgba(84,194,254,0.15)]"
         >
-          <p className="tabular text-[10px] uppercase tracking-[0.2em] text-ink/45">{card.label}</p>
+          <p className="tabular text-[11px] uppercase tracking-[0.06em] text-ink/45">{card.label}</p>
           <p
             className={`mt-3 tabular text-2xl font-medium tracking-tight sm:text-3xl ${
               card.accent ? 'text-brass' : 'text-ink'

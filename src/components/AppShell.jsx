@@ -25,7 +25,8 @@ export default function AppShell({ children }) {
       {/* ── Sidebar (desktop) ── */}
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-rule bg-card/60 md:flex">
         <div className="border-b border-rule px-6 py-5">
-          <p className="font-display text-xl leading-none text-ink">Next Millionaire Finance</p>
+          <p className="font-display text-xl font-semibold leading-none text-ink">Next Millionaire</p>
+          <p className="tabular mt-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-brass">Finance</p>
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-4">
@@ -35,16 +36,16 @@ export default function AppShell({ children }) {
               to={item.to}
               end={item.to === '/'}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-md px-3 py-2.5 text-sm ${
+                `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all ${
                   isActive
-                    ? 'bg-navy text-white'
+                    ? 'bg-hero text-white shadow-sm'
                     : 'text-ink/55 transition-colors hover:bg-ink/5 hover:text-ink'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  <span className={isActive ? 'text-brass' : ''}>{item.icon}</span>
+                  <span>{item.icon}</span>
                   <span className="font-medium">{item.label}</span>
                 </>
               )}
@@ -61,7 +62,7 @@ export default function AppShell({ children }) {
               <p className="truncate text-sm font-medium text-ink">{name}</p>
               <p className="tabular truncate text-xs text-ink/40">{user?.email}</p>
               {!isAdmin && (
-                <span className="mt-1 inline-flex items-center rounded-full border border-rule bg-card/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-ink/50">
+                <span className="mt-1 inline-flex items-center rounded-full border border-rule bg-card/70 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-ink/50">
                   View only
                 </span>
               )}
@@ -74,7 +75,7 @@ export default function AppShell({ children }) {
           <button
             type="button"
             onClick={signOut}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-rule bg-card/70 px-3 py-2 text-sm font-medium text-ink/70 transition-all hover:border-loss/40 hover:text-loss"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-rule bg-card/70 px-3 py-2 text-sm font-medium text-ink/70 transition-all hover:border-loss/40 hover:text-loss"
           >
             <LogoutIcon />
             Sign out
@@ -85,18 +86,18 @@ export default function AppShell({ children }) {
       {/* ── Main column ── */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar */}
-        <div className="flex items-center justify-between gap-3 border-b border-rule bg-card/60 px-4 py-3 sm:px-5 md:hidden">
+        <div className="flex items-center justify-between gap-3 bg-hero px-4 py-3 text-white sm:px-5 md:hidden">
           <div className="min-w-0">
-            <p className="font-display truncate text-lg leading-none text-ink">
-              Next Millionaire Finance
+            <p className="font-display truncate text-lg font-semibold leading-none text-white">
+              Next Millionaire <span className="font-normal text-white/80">Finance</span>
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <ThemeToggle />
+            <ThemeToggle onHero />
             <button
               type="button"
               onClick={signOut}
-              className="flex items-center gap-1.5 rounded-md border border-rule bg-card/70 px-3 py-1.5 text-xs font-medium text-ink/70 transition-colors hover:text-loss"
+              className="flex items-center gap-1.5 rounded-lg border border-white/30 px-3 py-1.5 text-xs font-medium text-white/90 transition-colors hover:border-white hover:text-white"
             >
               <LogoutIcon className="h-3.5 w-3.5" />
               Sign out
@@ -113,7 +114,7 @@ export default function AppShell({ children }) {
               end={item.to === '/'}
               className={({ isActive }) =>
                 `flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-xs font-medium ${
-                  isActive ? 'bg-navy text-white' : 'bg-card/70 text-ink/55'
+                  isActive ? 'bg-hero text-white' : 'border border-rule bg-card/70 text-ink/55'
                 }`
               }
             >

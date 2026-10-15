@@ -1,30 +1,23 @@
 import { useTheme } from '../context/ThemeContext'
 
-export default function ThemeToggle() {
+// Round sun/moon button, same look as the website's theme toggle.
+// `onHero` = sitting on the blue hero bar (white outline instead of grey).
+export default function ThemeToggle({ onHero = false }) {
   const { isDark, toggle } = useTheme()
 
   return (
     <button
       type="button"
-      role="switch"
-      aria-checked={isDark}
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       onClick={toggle}
-      className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brass/60 ${
-        isDark ? 'border-navy-light/50 bg-navy' : 'border-rule bg-card shadow-inner'
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={isDark ? 'Light mode' : 'Dark mode'}
+      className={`flex h-[34px] w-[34px] shrink-0 cursor-pointer items-center justify-center rounded-full border bg-transparent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brass/60 ${
+        onHero
+          ? 'border-white/30 text-white/85 hover:border-white hover:text-white'
+          : 'border-rule text-ink/70 hover:border-brass hover:text-brass'
       }`}
     >
-      <span
-        className={`absolute left-0.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-sm transition-transform duration-300 ${
-          isDark ? 'translate-x-6' : 'translate-x-0'
-        }`}
-      >
-        {isDark ? (
-          <MoonIcon className="h-3 w-3 text-navy" />
-        ) : (
-          <SunIcon className="h-3 w-3 text-brass" />
-        )}
-      </span>
+      {isDark ? <MoonIcon className="h-4 w-4" /> : <SunIcon className="h-4 w-4" />}
     </button>
   )
 }

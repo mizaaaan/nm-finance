@@ -204,14 +204,14 @@ export default function Ledger() {
     <AppShell>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">Transactions</p>
+          <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">Transactions</p>
           <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Ledger</h1>
         </div>
         {isAdmin && (
           <button
             type="button"
             onClick={() => setModal({ mode: 'add' })}
-            className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
+            className="rounded-lg border border-transparent bg-brass px-4 py-2.5 text-sm font-medium text-navy shadow-sm transition-all hover:border-brass hover:bg-transparent hover:text-brass hover:-translate-y-0.5 active:scale-[0.99]"
           >
             + Add entry
           </button>
@@ -270,7 +270,7 @@ export default function Ledger() {
                   {[...['Date', 'Description', 'Member / Car', 'Type', 'Amount'], ...(isAdmin ? [''] : [])].map((h, i) => (
                     <th
                       key={i}
-                      className="tabular whitespace-nowrap px-5 py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-ink/40"
+                      className="tabular whitespace-nowrap px-5 py-3 text-[11px] font-medium uppercase tracking-[0.06em] text-ink/40"
                     >
                       {h}
                     </th>
@@ -440,7 +440,7 @@ export default function Ledger() {
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy transition-all hover:bg-brass-light disabled:opacity-60"
+                className="rounded-lg border border-transparent bg-brass px-4 py-2.5 text-sm font-medium text-navy transition-all hover:border-brass hover:bg-transparent hover:text-brass hover:-translate-y-0.5 disabled:opacity-60"
               >
                 {busy ? 'Saving…' : modal.mode === 'edit' ? 'Save changes' : 'Add entry'}
               </button>

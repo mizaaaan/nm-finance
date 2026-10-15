@@ -24,12 +24,12 @@ export default function MemberGrid({ members }) {
           return (
             <div
               key={m.id}
-              className="rounded-xl border border-rule bg-card/70 p-5 transition-shadow hover:shadow-[0_16px_40px_-24px_rgba(15,31,61,0.3)]"
+              className="rounded-xl border border-rule bg-card/70 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-brass hover:shadow-[0_8px_24px_rgba(84,194,254,0.15)]"
             >
               <div className="flex items-center justify-between gap-2">
                 <h3 className="truncate font-medium text-ink">{m.name}</h3>
                 {m.role === 'admin' && (
-                  <span className="rounded-full bg-brass/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brass">
+                  <span className="rounded-full bg-brass/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-brass">
                     Admin
                   </span>
                 )}
@@ -37,7 +37,7 @@ export default function MemberGrid({ members }) {
 
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div>
-                  <p className="tabular text-[10px] uppercase tracking-[0.16em] text-ink/45">
+                  <p className="tabular text-[11px] uppercase tracking-[0.06em] text-ink/45">
                     Invested
                   </p>
                   <p className="tabular mt-1 text-lg font-medium text-ink">
@@ -45,7 +45,7 @@ export default function MemberGrid({ members }) {
                   </p>
                 </div>
                 <div>
-                  <p className="tabular text-[10px] uppercase tracking-[0.16em] text-ink/45">
+                  <p className="tabular text-[11px] uppercase tracking-[0.06em] text-ink/45">
                     Dividends
                   </p>
                   <p className="tabular mt-1 text-lg font-medium text-gain">

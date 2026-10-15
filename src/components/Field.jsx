@@ -1,7 +1,7 @@
 export function Field({ label, id, type = 'text', value, onChange, placeholder, autoComplete, required, step, min }) {
   return (
     <label htmlFor={id} className="block">
-      <span className="tabular block text-[11px] uppercase tracking-[0.16em] text-ink/50">{label}</span>
+      <span className="tabular block text-[11px] uppercase tracking-[0.06em] text-ink/50">{label}</span>
       <input
         id={id}
         type={type}
@@ -21,7 +21,7 @@ export function Field({ label, id, type = 'text', value, onChange, placeholder, 
 export function SelectField({ label, id, value, onChange, options, required }) {
   return (
     <label htmlFor={id} className="block">
-      <span className="tabular block text-[11px] uppercase tracking-[0.16em] text-ink/50">{label}</span>
+      <span className="tabular block text-[11px] uppercase tracking-[0.06em] text-ink/50">{label}</span>
       <select
         id={id}
         value={value}

@@ -16,12 +16,13 @@ export default {
         gain: 'rgb(var(--gain) / <alpha-value>)',
         card: 'rgb(var(--card) / <alpha-value>)', // card surface (white in light mode)
         navy: 'rgb(var(--navy) / <alpha-value>)', // deep surface that stays dark in both modes
+        hero: 'rgb(var(--hero) / <alpha-value>)', // website hero/footer blue (teal in dark)
         'navy-light': 'rgb(var(--navy-light) / <alpha-value>)'
       },
       fontFamily: {
-        display: ['"Fraunces"', 'serif'],
+        display: ['"Inter"', 'sans-serif'],
         sans: ['"Inter"', 'sans-serif'],
-        mono: ['"IBM Plex Mono"', 'monospace']
+        mono: ['"Inter"', 'sans-serif']
       }
     }
   },

@@ -30,11 +30,12 @@ export default function TrendChart({ data, month }) {
 
   // recharts sets colors as SVG attributes, so pick real hex values per theme.
   const c = {
-    ink: isDark ? '#E9E6DC' : '#0F1F3D',
-    brass: isDark ? '#D6AF3E' : '#C9A227',
-    grid: isDark ? '#222E48' : '#DCD7C9',
-    tooltipBg: isDark ? '#111B2E' : '#F7F5F0',
-    tooltipBorder: isDark ? '#222E48' : '#DCD7C9'
+    ink: isDark ? '#e7e7e7' : '#1a1a1a',
+    brass: '#54C2FE',
+    out: isDark ? '#e7e7e7' : '#0d2843',
+    grid: isDark ? '#262930' : '#e0e0e0',
+    tooltipBg: isDark ? '#16191e' : '#ffffff',
+    tooltipBorder: isDark ? '#262930' : '#e0e0e0'
   }
 
   return (
@@ -43,7 +44,7 @@ export default function TrendChart({ data, month }) {
       <div className="rounded-xl border border-rule bg-card/70 p-5 lg:col-span-2">
         <div className="flex items-baseline justify-between gap-3">
           <div>
-            <p className="tabular text-[10px] uppercase tracking-[0.2em] text-ink/45">
+            <p className="tabular text-[11px] uppercase tracking-[0.06em] text-ink/45">
               Cash flow · last 6 months
             </p>
             <h3 className="font-display mt-1 text-xl text-ink">{monthLabel(month)}</h3>
@@ -53,7 +54,7 @@ export default function TrendChart({ data, month }) {
               <span className="h-2 w-2 rounded-full bg-brass" /> In
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-ink" /> Out
+              <span className="h-2 w-2 rounded-full" style={{ background: c.out }} /> Out
             </span>
           </div>
         </div>
@@ -67,8 +68,8 @@ export default function TrendChart({ data, month }) {
                   <stop offset="100%" stopColor={c.brass} stopOpacity={0.02} />
                 </linearGradient>
                 <linearGradient id={outId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={c.ink} stopOpacity={0.28} />
-                  <stop offset="100%" stopColor={c.ink} stopOpacity={0.02} />
+                  <stop offset="0%" stopColor={c.out} stopOpacity={0.22} />
+                  <stop offset="100%" stopColor={c.out} stopOpacity={0.02} />
                 </linearGradient>
               </defs>
               <CartesianGrid stroke={c.grid} strokeDasharray="3 3" vertical={false} />
@@ -97,7 +98,7 @@ export default function TrendChart({ data, month }) {
                   border: `1px solid ${c.tooltipBorder}`,
                   borderRadius: 8,
                   fontSize: 12,
-                  fontFamily: "'IBM Plex Mono', monospace"
+                  fontFamily: "'Inter', sans-serif"
                 }}
               />
               <Area
@@ -110,7 +111,7 @@ export default function TrendChart({ data, month }) {
               <Area
                 type="monotone"
                 dataKey="outflow"
-                stroke={c.ink}
+                stroke={c.out}
                 strokeWidth={2}
                 fill={`url(#${outId})`}
               />
@@ -122,7 +123,7 @@ export default function TrendChart({ data, month }) {
       {/* this month breakdown + cars */}
       <div className="flex flex-col gap-4">
         <div className="rounded-xl border border-rule bg-card/70 p-5">
-          <p className="tabular text-[10px] uppercase tracking-[0.2em] text-ink/45">
+          <p className="tabular text-[11px] uppercase tracking-[0.06em] text-ink/45">
             This month · breakdown
           </p>
           <ul className="mt-4 space-y-3">
@@ -154,7 +155,7 @@ export default function TrendChart({ data, month }) {
         </div>
 
         <div className="rounded-xl border border-rule bg-card/70 p-5">
-          <p className="tabular text-[10px] uppercase tracking-[0.2em] text-ink/45">Fleet</p>
+          <p className="tabular text-[11px] uppercase tracking-[0.06em] text-ink/45">Fleet</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {[
               ['Active', carStatus.active, 'text-gain'],

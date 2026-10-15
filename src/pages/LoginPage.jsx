@@ -129,7 +129,7 @@ export default function LoginPage() {
       </div>
 
       {/* ── Brand panel ─────────────────────────────────────────── */}
-      <aside className="relative hidden w-[46%] flex-col justify-between overflow-hidden bg-navy p-12 text-white lg:flex">
+      <aside className="relative hidden w-[46%] flex-col justify-between overflow-hidden bg-hero p-12 text-white lg:flex">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-[0.06]"
@@ -139,38 +139,39 @@ export default function LoginPage() {
           }}
         />
         <div className="relative">
-          <h1 className="font-display text-5xl">Next Millionaire Finance</h1>
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/60">
+          <p className="text-sm font-light tracking-[0.02em] text-white/80">Next Millionaire Co-operative</p>
+          <h1 className="font-display mt-4 text-5xl font-normal leading-[1.05] tracking-[-0.04em]">Next Millionaire Finance</h1>
+          <p className="mt-5 max-w-sm text-base leading-relaxed text-white/85">
             The monthly balance accountability ledger for the group — rent income,
             member contributions, and car expenses, all in one place.
           </p>
         </div>
 
         {/* decorative ledger snapshot — intentionally blank, no fabricated figures */}
-        <div className="relative max-w-sm rounded-xl border border-white/10 bg-white/[0.04] p-6">
-          <p className="tabular text-[10px] uppercase tracking-[0.2em] text-white/40">
+        <div className="liquid-glass relative max-w-sm rounded-xl p-6">
+          <p className="tabular text-[11px] uppercase tracking-[0.06em] text-white/75">
             Company ledger
           </p>
           <ul className="mt-5 space-y-3">
             {['Rent income', 'Member contributions', 'Car expenses', 'Dividends paid'].map(
               (label) => (
                 <li key={label} className="flex items-baseline justify-between gap-4">
-                  <span className="text-sm text-white/60">{label}</span>
-                  <span className="tabular text-sm text-white/30">—</span>
+                  <span className="text-sm text-white/85">{label}</span>
+                  <span className="tabular text-sm text-white/60">—</span>
                 </li>
               )
             )}
-            <li className="mt-4 flex items-baseline justify-between gap-4 border-t border-white/10 pt-4">
-              <span className="text-sm text-white/70">Net balance</span>
-              <span className="tabular text-xl font-medium text-brass">0.00</span>
+            <li className="mt-4 flex items-baseline justify-between gap-4 border-t border-white/25 pt-4">
+              <span className="text-sm text-white/90">Net balance</span>
+              <span className="tabular text-xl font-semibold text-white">0.00</span>
             </li>
           </ul>
-          <p className="mt-4 text-xs leading-relaxed text-white/45">
+          <p className="mt-4 text-xs leading-relaxed text-white/75">
             Your real figures appear here once you add members, cars, and entries.
           </p>
         </div>
 
-        <p className="relative tabular text-[11px] uppercase tracking-[0.2em] text-white/40">
+        <p className="relative tabular text-[11px] uppercase tracking-[0.06em] text-white/75">
           Balance · Accountability · Growth
         </p>
       </aside>
@@ -183,7 +184,7 @@ export default function LoginPage() {
             <h1 className="font-display text-2xl text-ink sm:text-3xl">Next Millionaire Finance</h1>
           </div>
 
-          <div className="rounded-2xl border border-rule bg-card/70 p-6 shadow-[0_24px_60px_-32px_rgba(15,31,61,0.35)] backdrop-blur sm:p-8">
+          <div className="rounded-2xl border border-rule bg-card/70 p-6 shadow-[0_24px_60px_-32px_rgba(13,40,67,0.25)] backdrop-blur sm:p-8">
             {/* banners */}
             {identityUnreachable && (
               <div className="mb-6 rounded-md border border-brass/30 bg-brass/10 px-3 py-2.5 text-xs leading-relaxed text-ink/70">
@@ -230,7 +231,7 @@ export default function LoginPage() {
               /* ── reset password ── */
               <form onSubmit={handleReset} className="space-y-6">
                 <div>
-                  <p className="tabular text-[10px] uppercase tracking-[0.24em] text-brass">Password recovery</p>
+                  <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">Password recovery</p>
                   <h2 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Set a new password</h2>
                 </div>
                 <Field id="newPassword" label="New password" type="password" value={form.newPassword}
@@ -242,7 +243,7 @@ export default function LoginPage() {
             ) : (
               <>
                 {/* tabs */}
-                <div className="mb-8 grid grid-cols-2 gap-1 rounded-lg border border-rule bg-card/60 p-1">
+                <div className="mb-8 grid grid-cols-2 gap-1 rounded-xl border border-rule bg-card/60 p-1">
                   {MODES.map((m) => (
                     <button
                       key={m.id}
@@ -250,7 +251,7 @@ export default function LoginPage() {
                       onClick={() => switchMode(m.id)}
                       className={`rounded-md px-3 py-2 text-sm font-medium transition-all ${
                         mode === m.id
-                          ? 'bg-navy text-white shadow-sm'
+                          ? 'bg-hero text-white shadow-sm'
                           : 'text-ink/50 hover:text-ink'
                       }`}
                     >
@@ -262,7 +263,7 @@ export default function LoginPage() {
                 {mode === 'signin' && (
                   <form onSubmit={handleSignIn} className="space-y-6">
                     <div>
-                      <p className="tabular text-[10px] uppercase tracking-[0.24em] text-brass">Welcome back</p>
+                      <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">Welcome back</p>
                       <h2 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Sign in to your ledger</h2>
                     </div>
                     <Field id="email" label="Email" type="email" value={form.email}
@@ -285,7 +286,7 @@ export default function LoginPage() {
                 {mode === 'signup' && (
                   <form onSubmit={handleSignUp} className="space-y-6">
                     <div>
-                      <p className="tabular text-[10px] uppercase tracking-[0.24em] text-brass">Join the ledger</p>
+                      <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">Join the ledger</p>
                       <h2 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Open an account</h2>
                     </div>
                     {settings?.disable_signup ? (
@@ -316,7 +317,7 @@ export default function LoginPage() {
                 {/* external providers */}
                 {mode === 'signin' && providers.length > 0 && (
                   <div className="mt-8">
-                    <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-ink/40">
+                    <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.06em] text-ink/40">
                       <span className="h-px flex-1 bg-rule" />
                       or continue with
                       <span className="h-px flex-1 bg-rule" />
@@ -340,7 +341,7 @@ export default function LoginPage() {
                 {mode === 'forgot' && (
                   <form onSubmit={handleForgot} className="space-y-6">
                     <div>
-                      <p className="tabular text-[10px] uppercase tracking-[0.24em] text-brass">Password recovery</p>
+                      <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">Password recovery</p>
                       <h2 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Reset your password</h2>
                       <p className="mt-2 text-sm text-ink/60">
                         Enter your account email and we’ll send you a reset link.
@@ -378,7 +379,7 @@ function Field({ id, label, type = 'text', value, onChange, placeholder, autoCom
   const isPassword = type === 'password'
   return (
     <label htmlFor={id} className="block">
-      <span className="tabular block text-[11px] uppercase tracking-[0.18em] text-ink/50">
+      <span className="tabular block text-[11px] uppercase tracking-[0.06em] text-ink/50">
         {label}
       </span>
       <span className="relative mt-2 block">
@@ -413,7 +414,7 @@ function SubmitButton({ busy, label }) {
     <button
       type="submit"
       disabled={busy}
-      className="flex w-full items-center justify-center gap-2 rounded-md bg-brass px-4 py-3 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-2 rounded-lg border border-transparent bg-brass px-4 py-3 text-sm font-medium text-navy shadow-sm transition-all hover:border-brass hover:bg-transparent hover:text-brass hover:-translate-y-0.5 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {busy && <Spinner className="h-4 w-4" />}
       {busy ? 'Working…' : label}
@@ -441,7 +442,7 @@ function ProviderIcon({ provider }) {
     )
   }
   return (
-    <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-ink/10 text-[10px] font-bold text-ink/70 uppercase">
+    <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-ink/10 text-[11px] font-bold text-ink/70 uppercase">
       {provider[0]}
     </span>
   )

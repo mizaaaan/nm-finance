@@ -6,31 +6,33 @@
    Values are RGB triplets consumed by tailwind.config.js.
    `.dark` flips the semantic tokens for dark mode. */
 :root {
-  --ink: 15 31 61;            /* #0F1F3D deep ledger navy — text */
-  --ink-light: 27 58 107;     /* #1B3A6B */
-  --brass: 201 162 39;        /* #C9A227 brass/gold accent */
-  --brass-light: 230 197 92;  /* #E6C55C */
-  --paper: 247 245 240;       /* #F7F5F0 warm off-white background */
-  --rule: 220 215 201;        /* #DCD7C9 hairline */
-  --loss: 179 38 30;          /* #B3261E */
-  --gain: 30 122 76;          /* #1E7A4C */
-  --card: 255 255 255;        /* card surface (white overlay on paper) */
-  --navy: 15 31 61;           /* deep surface — constant across themes */
-  --navy-light: 27 58 107;
+  --ink: 26 26 26;            /* #1a1a1a body text (site) */
+  --ink-light: 13 40 67;      /* #0d2843 headings navy (site) */
+  --brass: 84 194 254;        /* #54C2FE site sky-blue accent */
+  --brass-light: 127 211 255; /* #7fd3ff */
+  --paper: 255 255 255;       /* #fff page background */
+  --rule: 224 224 224;        /* #e0e0e0 card borders */
+  --loss: 229 62 62;          /* #e53e3e */
+  --gain: 30 160 88;          /* green */
+  --card: 248 249 250;        /* #f8f9fa card surface */
+  --navy: 13 40 67;           /* #0d2843 deep surface (constant) */
+  --navy-light: 26 79 110;    /* #1a4f6e */
+  --hero: 84 194 254;         /* site hero / footer blue */
 }
 
 .dark {
-  --ink: 233 230 220;         /* warm off-white text */
-  --ink-light: 255 255 255;
-  --brass: 214 175 62;        /* brighter gold for contrast */
-  --brass-light: 236 205 118;
-  --paper: 10 17 31;          /* #0A111F deep navy background */
-  --rule: 34 46 72;           /* #222E48 */
-  --loss: 240 92 82;          /* #F05C52 */
-  --gain: 52 199 123;         /* #34C77B */
-  --card: 17 27 46;           /* #111B2E card surface */
-  --navy: 15 31 61;
-  --navy-light: 27 58 107;
+  --ink: 231 231 231;         /* #e7e7e7 */
+  --ink-light: 245 245 245;   /* #f5f5f5 */
+  --brass: 84 194 254;        /* accent stays #54C2FE in dark */
+  --brass-light: 127 211 255;
+  --paper: 13 15 19;          /* #0d0f13 */
+  --rule: 38 41 47;           /* ~ white @10% on paper */
+  --loss: 244 100 100;
+  --gain: 63 190 112;
+  --card: 22 25 30;           /* ~ white @3.5% on paper */
+  --navy: 13 40 67;
+  --navy-light: 26 79 110;
+  --hero: 26 79 110;          /* #1a4f6e site dark hero / footer */
 }
 
 html {
@@ -39,15 +41,30 @@ html {
 
 body {
   font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Headings follow the website: Inter, light-ish weight, tight tracking */
 .font-display {
-  font-family: 'Fraunces', serif;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.035em;
 }
 
+/* Numbers and small labels: Inter with aligned digits (no mono font) */
 .tabular {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Inter', sans-serif;
   font-variant-numeric: tabular-nums;
+}
+
+/* Liquid-glass surface from the website (used on blue hero areas) */
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 /* Hide scrollbars on horizontally-scrolling rails (mobile nav) */

@@ -94,7 +94,7 @@ export default function Cars() {
     <AppShell>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">Fleet</p>
+          <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">Fleet</p>
           <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Cars</h1>
         </div>
         {isAdmin && (
@@ -105,7 +105,7 @@ export default function Cars() {
               setFormError(null)
               setModalOpen(true)
             }}
-            className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
+            className="rounded-lg border border-transparent bg-brass px-4 py-2.5 text-sm font-medium text-navy shadow-sm transition-all hover:border-brass hover:bg-transparent hover:text-brass hover:-translate-y-0.5 active:scale-[0.99]"
           >
             + Add car
           </button>
@@ -138,7 +138,7 @@ export default function Cars() {
           cars.map((car) => (
             <div
               key={car.id}
-              className="rounded-xl border border-rule bg-card/70 p-5 transition-shadow hover:shadow-[0_16px_40px_-24px_rgba(15,31,61,0.3)]"
+              className="rounded-xl border border-rule bg-card/70 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-brass hover:shadow-[0_8px_24px_rgba(84,194,254,0.15)]"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
@@ -161,14 +161,14 @@ export default function Cars() {
 
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div>
-                  <p className="tabular text-[10px] uppercase tracking-[0.16em] text-ink/45">Purchased</p>
+                  <p className="tabular text-[11px] uppercase tracking-[0.06em] text-ink/45">Purchased</p>
                   <p className="tabular mt-1 text-sm font-medium text-ink">
                     {formatMoney(car.purchasePrice || car.purchase_price)}
                   </p>
                   <p className="tabular text-xs text-ink/40">{car.purchaseDate || car.purchase_date || '—'}</p>
                 </div>
                 <div>
-                  <p className="tabular text-[10px] uppercase tracking-[0.16em] text-ink/45">Status</p>
+                  <p className="tabular text-[11px] uppercase tracking-[0.06em] text-ink/45">Status</p>
                   {isAdmin ? (
                     <select
                       aria-label={`Status of ${car.name}`}
@@ -228,7 +228,7 @@ export default function Cars() {
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy transition-all hover:bg-brass-light disabled:opacity-60"
+                className="rounded-lg border border-transparent bg-brass px-4 py-2.5 text-sm font-medium text-navy transition-all hover:border-brass hover:bg-transparent hover:text-brass hover:-translate-y-0.5 disabled:opacity-60"
               >
                 {busy ? 'Saving…' : 'Add car'}
               </button>

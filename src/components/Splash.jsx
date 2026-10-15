@@ -8,7 +8,7 @@ export default function Splash({ label }) {
       </div>
       <Spinner className="h-6 w-6 text-brass" />
       {label && (
-        <p className="tabular text-[11px] uppercase tracking-[0.2em] text-ink/40">{label}</p>
+        <p className="tabular text-[11px] uppercase tracking-[0.06em] text-ink/40">{label}</p>
       )}
     </div>
   )

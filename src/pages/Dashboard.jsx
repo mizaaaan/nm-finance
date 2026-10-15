@@ -42,7 +42,7 @@ export default function Dashboard() {
     <AppShell>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">
+          <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">
             Company overview
           </p>
           <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Dashboard</h1>
@@ -142,7 +142,7 @@ export default function Dashboard() {
         <section className="mt-12 rounded-xl border border-loss/25 bg-loss/5 p-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="min-w-0">
-              <p className="tabular text-[10px] uppercase tracking-[0.2em] text-loss">
+              <p className="tabular text-[11px] uppercase tracking-[0.06em] text-loss">
                 Danger zone
               </p>
               <h2 className="font-display mt-1 text-lg text-ink">Reset company data</h2>
@@ -187,7 +187,7 @@ export default function Dashboard() {
               </div>
             )}
             <label htmlFor="reset-confirm" className="block">
-              <span className="tabular block text-[11px] uppercase tracking-[0.16em] text-ink/50">
+              <span className="tabular block text-[11px] uppercase tracking-[0.06em] text-ink/50">
                 Type <span className="font-semibold text-loss">RESET</span> to confirm
               </span>
               <input

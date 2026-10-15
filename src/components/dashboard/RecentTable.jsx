@@ -40,7 +40,7 @@ export default function RecentTable({ rows }) {
                   {['Date', 'Description', 'Type', 'Amount'].map((h) => (
                     <th
                       key={h}
-                      className="tabular px-5 py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-ink/40"
+                      className="tabular px-5 py-3 text-[11px] font-medium uppercase tracking-[0.06em] text-ink/40"
                     >
                       {h}
                     </th>

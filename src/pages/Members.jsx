@@ -60,7 +60,7 @@ export default function Members() {
     <AppShell>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="tabular text-[10px] uppercase tracking-[0.22em] text-brass">People</p>
+          <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">People</p>
           <h1 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Members</h1>
         </div>
         {isAdmin && (
@@ -71,7 +71,7 @@ export default function Members() {
               setFormError(null)
               setModalOpen(true)
             }}
-            className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition-all hover:bg-brass-light active:scale-[0.99]"
+            className="rounded-lg border border-transparent bg-brass px-4 py-2.5 text-sm font-medium text-navy shadow-sm transition-all hover:border-brass hover:bg-transparent hover:text-brass hover:-translate-y-0.5 active:scale-[0.99]"
           >
             + Add member
           </button>
@@ -106,7 +106,7 @@ export default function Members() {
           members.map((m) => (
             <div
               key={m.id}
-              className="rounded-xl border border-rule bg-card/70 p-5 transition-shadow hover:shadow-[0_16px_40px_-24px_rgba(15,31,61,0.3)]"
+              className="rounded-xl border border-rule bg-card/70 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-brass hover:shadow-[0_8px_24px_rgba(84,194,254,0.15)]"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
@@ -139,7 +139,7 @@ export default function Members() {
               </div>
               <div className="mt-4 flex items-center gap-3 text-sm">
                 {m.role === 'admin' && (
-                  <span className="rounded-full bg-brass/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brass">
+                  <span className="rounded-full bg-brass/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-brass">
                     Admin
                   </span>
                 )}
@@ -192,7 +192,7 @@ export default function Members() {
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-md bg-brass px-4 py-2.5 text-sm font-semibold text-navy transition-all hover:bg-brass-light disabled:opacity-60"
+                className="rounded-lg border border-transparent bg-brass px-4 py-2.5 text-sm font-medium text-navy transition-all hover:border-brass hover:bg-transparent hover:text-brass hover:-translate-y-0.5 disabled:opacity-60"
               >
                 {busy ? 'Saving…' : 'Add member'}
               </button>
