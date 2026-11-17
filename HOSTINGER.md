@@ -14,12 +14,25 @@ repository ships its own equivalents, so the whole site runs there:
 The Netlify deployment keeps working exactly as before: `npm run build` is still
 the Netlify build, and the functions are untouched.
 
-## 1. Database (hPanel → Databases)
+## 1. Database (MySQL)
 
-1. Create a **MySQL database** (and a database user) in hPanel.
-2. Note the database name, user and password. The host is usually `localhost`.
-3. Nothing else to do: the server creates its tables on first boot using
+A Node.js **Web App** dashboard does not show MySQL at all — its *Connect a
+database* wizard only offers Supabase and MongoDB. MySQL lives in the normal
+website dashboard, so unlock it with a throwaway site on the same plan:
+
+1. hPanel → **Websites** → **Add website** → **Blank website** / **PHP** (use a
+   temporary domain). It costs nothing extra on the same plan and exists only so
+   the standard dashboard is available.
+2. Open that site → **Manage site** → **Databases** → **MySQL Databases** →
+   **Create database**. Note the full names including the prefix, e.g.
+   `u123456789_nmfinance` and `u123456789_admin`, plus the password.
+3. Host `127.0.0.1`, port `3306`. Databases are plan-level, so the Web App can
+   use it from there no matter which site lists it.
+4. Nothing else to do: the server creates its tables on first boot using
    `db/schema.mysql.sql`.
+
+Can't find the menu? hPanel's search box (top of the sidebar) also finds it for
+`mysql` — but only inside a plain website's dashboard, not a Web App's.
 
 ## 2. The Node app (hPanel → Websites → Create site → Web App)
 
