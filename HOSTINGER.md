@@ -38,10 +38,16 @@ the Netlify build, and the functions are untouched.
    signs in against the Node server instead of Netlify Identity. `npm start`
    runs `server/index.js`.
 
+   > Hostinger's detection may show **Express · Node.js 22.x · `server.js`**. That
+   > is fine: a root `server.js` shim is included, so either `node server.js` or
+   > `npm start` boots the same server. What must not change is the build — it has
+   > to be `npm run build:hostinger`, otherwise the frontend is built for Netlify
+   > Identity and sign-in will not work on this host.
+
 ## 3. Environment variables (same screen, before the first deploy)
 
 ```
-DB_HOST=localhost
+DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_NAME=u123456789_nmfinance
 DB_USER=u123456789_admin
@@ -51,6 +57,10 @@ ADMIN_EMAIL=you@example.com
 ADMIN_PASSWORD=…            # 8+ characters
 ADMIN_NAME=Administrator
 ```
+
+**`DB_HOST` must be `127.0.0.1`, not `localhost`.** On Node 17+ `localhost`
+resolves to `::1`, and MySQL answers *"Access denied for user …@'::1'"* because
+the database user is granted for `127.0.0.1` only.
 
 Generate `SESSION_SECRET` with:
 
@@ -82,6 +92,9 @@ and add it again with a new password.
 - **Schema changes** are applied on boot (`AUTO_MIGRATE=0` disables that check).
   You can also run `npm run db:setup` with the same environment variables, or
   call `POST /api/init` as an admin.
+- **`vite: not found` during the build** means the install skipped
+  devDependencies (some hosts install with `NODE_ENV=production`). Set the build
+  command to `npm ci --include=dev && npm run build:hostinger`.
 - **Backups**: use hPanel's MySQL backups; `POST /api/reset` wipes the ledger and
   cannot be undone.
 - **The 2026 records** (`/documents`) are static data in `src/data/records.js`;
