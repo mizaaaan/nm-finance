@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { timingSafeEqual } from 'node:crypto'
 import { getPool } from './db.js'
 import {
   clearSessionCookie,
@@ -124,6 +125,73 @@ export function createApiRouter() {
   })
 
   /* ── health + auth ──────────────────────────────────────── */
+
+  // The Hostinger deployment starts with no local auth accounts because
+  // Netlify Identity passwords cannot be moved. The first user creates the
+  // one-time administrator account; after that, admins manage sign-in users.
+  router.get('/auth/status', async (_req, res) => {
+    try {
+      const [rows] = await pool.query('SELECT COUNT(*) AS count FROM users')
+      res.json({ setupRequired: Number(rows[0].count) === 0 })
+    } catch (error) {
+      fail(res, error)
+    }
+  })
+
+  router.post('/auth/initial-admin', async (req, res) => {
+    const email = cleanName(req.body?.email).toLowerCase()
+    const name = cleanName(req.body?.name)
+    const password = String(req.body?.password || '')
+    const initialAdminKey = String(req.body?.initialAdminKey || '')
+    const expectedKey = String(process.env.INITIAL_ADMIN_KEY || '')
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Enter a valid email address.' })
+    }
+    if (process.env.ADMIN_EMAIL && email !== process.env.ADMIN_EMAIL.trim().toLowerCase()) {
+      return res.status(403).json({ error: 'Use the administrator email configured for this site.' })
+    }
+    if (!name) return res.status(400).json({ error: 'Enter your name.' })
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters.' })
+    }
+    const suppliedKey = Buffer.from(initialAdminKey)
+    const expectedKeyBytes = Buffer.from(expectedKey)
+    if (
+      expectedKeyBytes.length < 24 ||
+      suppliedKey.length !== expectedKeyBytes.length ||
+      !timingSafeEqual(suppliedKey, expectedKeyBytes)
+    ) {
+      return res.status(403).json({ error: 'The one-time setup key is invalid.' })
+    }
+
+    let connection
+    let lockAcquired = false
+    try {
+      connection = await pool.getConnection()
+      const [locks] = await connection.query("SELECT GET_LOCK('nmfinance_initial_admin', 10) AS acquired")
+      lockAcquired = Number(locks[0]?.acquired) === 1
+      if (!lockAcquired) return res.status(503).json({ error: 'Account setup is busy. Try again shortly.' })
+
+      const [existing] = await connection.query('SELECT id FROM users LIMIT 1')
+      if (existing.length) return res.status(409).json({ error: 'Initial setup is already complete.' })
+
+      const [created] = await connection.query(
+        'INSERT INTO users (email, name, password_hash, role) VALUES (?, ?, ?, ?)',
+        [email, name, hashPassword(password), 'admin']
+      )
+      setSessionCookie(req, res, created.insertId)
+      res.status(201).json({
+        user: { id: created.insertId, email, name, role: 'admin' }
+      })
+    } catch (error) {
+      fail(res, error)
+    } finally {
+      if (connection && lockAcquired) {
+        await connection.query("SELECT RELEASE_LOCK('nmfinance_initial_admin')").catch(() => {})
+      }
+      connection?.release()
+    }
+  })
 
   router.get('/health', async (_req, res) => {
     try {

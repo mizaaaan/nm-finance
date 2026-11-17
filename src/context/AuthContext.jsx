@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-<<<<<<< Updated upstream
 import {
   auth,
   clearUrlTokens,
@@ -10,10 +9,6 @@ import {
 } from '../lib/auth'
 import { PREVIEW_MODE, PREVIEW_USER } from '../lib/preview'
 import { SESSION_MODE } from '../lib/authMode'
-=======
-import { apiRequest } from '../lib/api'
-import { clearUrlTokens, isAdminUser } from '../lib/auth'
->>>>>>> Stashed changes
 
 const AuthContext = createContext(null)
 
@@ -22,11 +17,11 @@ const AuthContext = createContext(null)
 function IdentityAuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [settings, setSettings] = useState(null)
   const [notice, setNotice] = useState(null)
 
   useEffect(() => {
     let cancelled = false
-<<<<<<< Updated upstream
     const safe = (fn) => {
       try {
         fn()
@@ -87,48 +82,60 @@ function IdentityAuthProvider({ children }) {
     return () => {
       cancelled = true
     }
-=======
-    apiRequest('/api/auth/me')
-      .then(({ user: current }) => { if (!cancelled) setUser(current) })
-      .catch(() => { if (!cancelled) setUser(null) })
-      .finally(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
->>>>>>> Stashed changes
   }, [])
 
-  const value = useMemo(() => ({
-    user,
-    loading,
-    settings: { disable_signup: false },
-    notice,
-    providers: [],
-    autoconfirm: true,
-    isAdmin: isAdminUser(user),
-    clearNotice: () => setNotice(null),
-    signIn: async (email, password) => {
-      const result = await apiRequest('/api/auth/login', { method: 'POST', body: { email, password } })
-      setUser(result.user)
-      return result.user
-    },
-    signUp: async (email, password, metadata) => {
-      const result = await apiRequest('/api/auth/signup', {
-        method: 'POST', body: { email, password, name: metadata?.full_name || '' }
-      })
-      setUser(result.user)
-      return result.user
-    },
-    signOut: async () => {
-      try { await apiRequest('/api/auth/logout', { method: 'POST', body: {} }) }
-      finally { setUser(null) }
-    },
-    sendRecovery: async (email) => apiRequest('/api/auth/forgot', { method: 'POST', body: { email } }),
-    resetPassword: async (token, password) => {
-      await apiRequest('/api/auth/reset', { method: 'POST', body: { token, password } })
-      clearUrlTokens()
-      setUser(null)
-    },
-    signInWithProvider: () => setNotice({ tone: 'error', message: 'External sign-in is not configured on this site.' })
-  }), [user, loading, notice])
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      settings,
+      notice,
+      providers: enabledProviders(settings),
+      autoconfirm: Boolean(settings?.autoconfirm),
+      isAdmin: isAdminUser(user),
+      clearNotice: () => setNotice(null),
+
+      signIn: async (email, password) => {
+        const u = await auth.login(email, password, true)
+        setUser(u)
+        return u
+      },
+
+      signUp: async (email, password, metadata) => {
+        const res = await auth.signup(email, password, metadata)
+        // Auto-confirm sites sign you straight in
+        if (res.confirmed_at || settings?.autoconfirm) {
+          const u = await auth.login(email, password, true)
+          setUser(u)
+        }
+        return res
+      },
+
+      signOut: async () => {
+        const current = auth.currentUser()
+        try {
+          if (current) await current.logout()
+        } finally {
+          // Always clear the local session, even if the network call failed.
+          setUser(null)
+        }
+      },
+
+      sendRecovery: async (email) => auth.requestPasswordRecovery(email),
+
+      resetPassword: async (token, password) => {
+        const u = await auth.recover(token, true)
+        await u.update({ password })
+        clearUrlTokens()
+        setUser(auth.currentUser() || u)
+      },
+
+      signInWithProvider: (provider) => {
+        window.location.assign(auth.loginExternalUrl(provider))
+      }
+    }),
+    [user, loading, settings, notice]
+  )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
@@ -150,13 +157,21 @@ function SessionAuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState(null)
+  const [setupRequired, setSetupRequired] = useState(false)
 
   useEffect(() => {
     let cancelled = false
-    fetch('/api/auth/me', { headers: { Accept: 'application/json' } })
-      .then((res) => (res.ok ? res.json() : { user: null }))
-      .then((data) => {
-        if (!cancelled) setUser(data?.user ? toSessionUser(data.user) : null)
+    Promise.all([
+      fetch('/api/auth/me', { headers: { Accept: 'application/json' } }),
+      fetch('/api/auth/status', { headers: { Accept: 'application/json' } })
+    ])
+      .then(async ([meResponse, statusResponse]) => {
+        const me = meResponse.ok ? await meResponse.json() : { user: null }
+        const status = statusResponse.ok ? await statusResponse.json() : { setupRequired: false }
+        if (!cancelled) {
+          setUser(me?.user ? toSessionUser(me.user) : null)
+          setSetupRequired(Boolean(status?.setupRequired))
+        }
       })
       .catch(() => {})
       .finally(() => {
@@ -171,6 +186,7 @@ function SessionAuthProvider({ children }) {
     () => ({
       user,
       loading,
+      setupRequired,
       settings: null,
       notice,
       providers: [],
@@ -199,8 +215,23 @@ function SessionAuthProvider({ children }) {
         }
       },
 
-      signUp: async () => {
-        throw new Error('Accounts are created by an administrator.')
+      signUp: async (email, password, metadata) => {
+        const res = await fetch('/api/auth/initial-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            password,
+            name: metadata?.full_name || '',
+            initialAdminKey: metadata?.initial_admin_key || ''
+          })
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) throw new Error(data.error || 'Initial account setup failed.')
+        const next = toSessionUser(data.user)
+        setUser(next)
+        setSetupRequired(false)
+        return next
       },
       sendRecovery: async () => {
         throw new Error('Ask an administrator to reset your password.')
@@ -212,7 +243,7 @@ function SessionAuthProvider({ children }) {
         throw new Error('Social sign-in is not enabled on this site.')
       }
     }),
-    [user, loading, notice]
+    [user, loading, notice, setupRequired]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

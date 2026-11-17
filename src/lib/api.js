@@ -1,7 +1,22 @@
+import { auth } from './auth'
+import { SESSION_MODE } from './authMode'
+
 export class ApiError extends Error {
   constructor(message, status) {
     super(message)
     this.status = status
+  }
+}
+
+// The signed-in user's Netlify Identity JWT (auto-refreshes if expired), or
+// null when nobody is logged in. The API rejects requests without it.
+export async function authToken() {
+  try {
+    const user = auth.currentUser()
+    if (!user) return null
+    return await user.jwt()
+  } catch {
+    return null
   }
 }
 
@@ -18,13 +33,15 @@ async function readBody(res) {
 }
 
 export async function apiRequest(path, { method = 'GET', body } = {}) {
+  const token = SESSION_MODE ? null : await authToken()
   let res
   try {
     res = await fetch(path, {
       method,
       credentials: 'same-origin',
       headers: {
-        ...(body !== undefined ? { 'Content-Type': 'application/json' } : {})
+        ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
       body: body !== undefined ? JSON.stringify(body) : undefined
     })
