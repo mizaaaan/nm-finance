@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { readUrlTokens } from '../lib/auth'
+import { SESSION_MODE } from '../lib/authMode'
 import Splash from '../components/Splash'
 import Spinner from '../components/Spinner'
 import ThemeToggle from '../components/ThemeToggle'
@@ -119,7 +120,7 @@ export default function LoginPage() {
     }
   }
 
-  const identityUnreachable = !loading && settings === null
+  const identityUnreachable = !SESSION_MODE && !loading && settings === null
 
   return (
     <div className="relative min-h-dvh bg-paper lg:flex">
@@ -242,23 +243,25 @@ export default function LoginPage() {
               </form>
             ) : (
               <>
-                {/* tabs */}
-                <div className="mb-8 grid grid-cols-2 gap-1 rounded-xl border border-rule bg-card/60 p-1">
-                  {MODES.map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => switchMode(m.id)}
-                      className={`rounded-md px-3 py-2 text-sm font-medium transition-all ${
-                        mode === m.id
-                          ? 'bg-hero text-white shadow-sm'
-                          : 'text-ink/50 hover:text-ink'
-                      }`}
-                    >
-                      {m.label}
-                    </button>
-                  ))}
-                </div>
+                {/* tabs — sign-up and recovery are Netlify Identity features */}
+                {!SESSION_MODE && (
+                  <div className="mb-8 grid grid-cols-2 gap-1 rounded-xl border border-rule bg-card/60 p-1">
+                    {MODES.map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => switchMode(m.id)}
+                        className={`rounded-md px-3 py-2 text-sm font-medium transition-all ${
+                          mode === m.id
+                            ? 'bg-hero text-white shadow-sm'
+                            : 'text-ink/50 hover:text-ink'
+                        }`}
+                      >
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 {mode === 'signin' && (
                   <form onSubmit={handleSignIn} className="space-y-6">
@@ -271,13 +274,15 @@ export default function LoginPage() {
                     <div>
                       <Field id="password" label="Password" type="password" value={form.password}
                         onChange={set('password')} autoComplete="current-password" />
-                      <button
-                        type="button"
-                        onClick={() => switchMode('forgot')}
-                        className="mt-2 text-xs font-medium text-ink/50 underline decoration-rule underline-offset-4 transition hover:text-ink"
-                      >
-                        Forgot password?
-                      </button>
+                      {!SESSION_MODE && (
+                        <button
+                          type="button"
+                          onClick={() => switchMode('forgot')}
+                          className="mt-2 text-xs font-medium text-ink/50 underline decoration-rule underline-offset-4 transition hover:text-ink"
+                        >
+                          Forgot password?
+                        </button>
+                      )}
                     </div>
                     <SubmitButton busy={busy} label="Sign in" />
                   </form>
@@ -364,7 +369,16 @@ export default function LoginPage() {
           </div>
 
           <p className="mt-6 text-center text-xs text-ink/40">
-            Secured by <span className="text-ink/60">Netlify Identity</span>
+            {SESSION_MODE ? (
+              <>
+                Accounts are managed by an administrator. Passwords are stored as hashes on{' '}
+                <span className="text-ink/60">your own server</span>.
+              </>
+            ) : (
+              <>
+                Secured by <span className="text-ink/60">Netlify Identity</span>
+              </>
+            )}
           </p>
         </div>
       </main>

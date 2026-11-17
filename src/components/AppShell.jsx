@@ -1,6 +1,8 @@
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ThemeToggle from './ThemeToggle'
+import { DOCUMENTS } from '../data/records'
+import { isPreviewUser, PREVIEW_MODE } from '../lib/preview'
 
 const NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: <GridIcon />, to: '/' },
@@ -29,7 +31,8 @@ export default function AppShell({ children }) {
           <p className="tabular mt-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-brass">Finance</p>
         </div>
 
-        <nav className="flex-1 space-y-1 px-3 py-4">
+        <nav className="flex-1 overflow-y-auto px-3 py-4">
+          <div className="space-y-1">
           {NAV.map((item) => (
             <NavLink
               key={item.id}
@@ -51,6 +54,42 @@ export default function AppShell({ children }) {
               )}
             </NavLink>
           ))}
+          </div>
+
+          {/* 2026 records — one link per workbook, plus the index */}
+          <div className="mt-6">
+            <p className="px-3 text-[11px] font-medium text-ink/35">Documents · 2026</p>
+            <div className="mt-2 space-y-0.5">
+              <NavLink
+                to="/documents"
+                end
+                className={({ isActive }) =>
+                  `block rounded-md px-3 py-2 text-[13px] transition-colors ${
+                    isActive
+                      ? 'bg-brass/10 font-medium text-ink'
+                      : 'text-ink/50 hover:bg-ink/5 hover:text-ink'
+                  }`
+                }
+              >
+                All documents
+              </NavLink>
+              {DOCUMENTS.map((doc) => (
+                <NavLink
+                  key={doc.id}
+                  to={doc.path}
+                  className={({ isActive }) =>
+                    `block truncate rounded-md px-3 py-2 text-[13px] transition-colors ${
+                      isActive
+                        ? 'bg-brass/10 font-medium text-ink'
+                        : 'text-ink/50 hover:bg-ink/5 hover:text-ink'
+                    }`
+                  }
+                >
+                  {doc.title}
+                </NavLink>
+              ))}
+            </div>
+          </div>
         </nav>
 
         <div className="border-t border-rule p-4">
@@ -63,7 +102,7 @@ export default function AppShell({ children }) {
               <p className="tabular truncate text-xs text-ink/40">{user?.email}</p>
               {!isAdmin && (
                 <span className="mt-1 inline-flex items-center rounded-full border border-rule bg-card/70 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-ink/50">
-                  View only
+                  {isPreviewUser(user) ? 'Local preview' : 'View only'}
                 </span>
               )}
             </div>
@@ -72,14 +111,16 @@ export default function AppShell({ children }) {
             <span className="text-xs font-medium text-ink/70">Dark mode</span>
             <ThemeToggle />
           </div>
-          <button
-            type="button"
-            onClick={signOut}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-rule bg-card/70 px-3 py-2 text-sm font-medium text-ink/70 transition-all hover:border-loss/40 hover:text-loss"
-          >
-            <LogoutIcon />
-            Sign out
-          </button>
+          {!PREVIEW_MODE && (
+            <button
+              type="button"
+              onClick={signOut}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-rule bg-card/70 px-3 py-2 text-sm font-medium text-ink/70 transition-all hover:border-loss/40 hover:text-loss"
+            >
+              <LogoutIcon />
+              Sign out
+            </button>
+          )}
         </div>
       </aside>
 
@@ -94,19 +135,33 @@ export default function AppShell({ children }) {
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <ThemeToggle onHero />
-            <button
-              type="button"
-              onClick={signOut}
-              className="flex items-center gap-1.5 rounded-lg border border-white/30 px-3 py-1.5 text-xs font-medium text-white/90 transition-colors hover:border-white hover:text-white"
-            >
-              <LogoutIcon className="h-3.5 w-3.5" />
-              Sign out
-            </button>
+            {!PREVIEW_MODE && (
+              <button
+                type="button"
+                onClick={signOut}
+                className="flex items-center gap-1.5 rounded-lg border border-white/30 px-3 py-1.5 text-xs font-medium text-white/90 transition-colors hover:border-white hover:text-white"
+              >
+                <LogoutIcon className="h-3.5 w-3.5" />
+                Sign out
+              </button>
+            )}
           </div>
         </div>
 
         {/* Mobile nav */}
         <div className="scrollbar-none flex gap-2 overflow-x-auto border-b border-rule px-4 py-2.5 md:hidden">
+          {/* records first on phones so the document menu is always in reach */}
+          <NavLink
+            to="/documents"
+            className={({ isActive }) =>
+              `flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-xs font-medium ${
+                isActive ? 'bg-hero text-white' : 'border border-rule bg-card/70 text-ink/55'
+              }`
+            }
+          >
+            <DocIcon />
+            Documents
+          </NavLink>
           {NAV.map((item) => (
             <NavLink
               key={item.id}
@@ -187,6 +242,15 @@ function CarIcon() {
       <rect x="3" y="11" width="18" height="5" rx="1" />
       <circle cx="7.5" cy="17.5" r="1.8" />
       <circle cx="16.5" cy="17.5" r="1.8" />
+    </IconBase>
+  )
+}
+
+function DocIcon() {
+  return (
+    <IconBase>
+      <path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7z" />
+      <path d="M14 3v4h4M9 12h6M9 16h4" />
     </IconBase>
   )
 }

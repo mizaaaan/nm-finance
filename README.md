@@ -16,6 +16,10 @@ No external services beyond GitHub + Netlify.
 ## Status
 **Live at https://nm-finance.netlify.app**
 
+This app also runs on **Hostinger** (or any Node + MySQL host) with the API,
+database and sign-in served by `server/` instead of Netlify. See
+[HOSTINGER.md](HOSTINGER.md) for the deployment steps.
+
 All four screens are built and deployed: Dashboard, Ledger (full CRUD + filters),
 Members, and Cars. Backed by Netlify Functions (`/api/dashboard`, `/api/members`,
 `/api/cars`, `/api/transactions`, `/api/init`, `/api/reset`) against Netlify DB.
