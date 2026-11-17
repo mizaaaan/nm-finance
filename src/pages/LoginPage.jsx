@@ -18,16 +18,12 @@ export default function LoginPage() {
   const {
     user,
     loading,
-    settings,
     notice,
     clearNotice,
-    providers,
-    autoconfirm,
     signIn,
     signUp,
     sendRecovery,
-    resetPassword,
-    signInWithProvider
+    resetPassword
   } = useAuth()
 
   const urlTokens = useMemo(() => readUrlTokens(), [])
@@ -76,10 +72,7 @@ export default function LoginPage() {
     setError(null)
     try {
       await signUp(form.email.trim(), form.password, { full_name: form.name.trim() })
-      if (!autoconfirm) {
-        setSuccess(`Confirmation email sent to ${form.email.trim()}. Check your inbox to activate your account.`)
-      }
-      // autoconfirm sites sign you in → the redirect above handles it
+      // Successful registration starts a session and opens the ledger.
     } catch (err) {
       setError(err.message)
     } finally {
@@ -189,8 +182,8 @@ export default function LoginPage() {
             {/* banners */}
             {identityUnreachable && (
               <div className="mb-6 rounded-md border border-brass/30 bg-brass/10 px-3 py-2.5 text-xs leading-relaxed text-ink/70">
-                <span className="font-semibold text-ink">Identity not reachable yet.</span>{' '}
-                Enable Netlify Identity in the dashboard, or use <span className="tabular">netlify dev</span> locally.
+              <span className="font-semibold text-ink">Account service not reachable.</span>{' '}
+                Try again in a moment or contact the site administrator.
               </div>
             )}
             {notice && (
@@ -294,53 +287,19 @@ export default function LoginPage() {
                       <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">Join the ledger</p>
                       <h2 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Open an account</h2>
                     </div>
-                    {settings?.disable_signup ? (
-                      <p className="rounded-md border border-rule bg-paper px-3 py-2.5 text-sm text-ink/60">
-                        New sign-ups are closed on this site. Ask an admin to invite you.
-                      </p>
-                    ) : (
-                      <>
-                        <Field id="name" label="Name" value={form.name} onChange={set('name')}
-                          autoComplete="name" placeholder="e.g. Ade Johnson" />
-                        <Field id="email" label="Email" type="email" value={form.email}
-                          onChange={set('email')} autoComplete="email" placeholder="you@example.com" inputMode="email" />
-                        <Field id="password" label="Password" type="password" value={form.password}
-                          onChange={set('password')} autoComplete="new-password" />
-                        <Field id="confirm" label="Confirm password" type="password" value={form.confirm}
-                          onChange={set('confirm')} autoComplete="new-password" />
-                        <SubmitButton busy={busy} label="Create account" />
-                        <p className="text-xs leading-relaxed text-ink/40">
-                          {autoconfirm
-                            ? 'Accounts on this site are activated automatically.'
-                            : 'A confirmation email will be sent to activate your account.'}
-                        </p>
-                      </>
-                    )}
+                    <Field id="name" label="Name" value={form.name} onChange={set('name')}
+                      autoComplete="name" placeholder="e.g. Ade Johnson" />
+                    <Field id="email" label="Email" type="email" value={form.email}
+                      onChange={set('email')} autoComplete="email" placeholder="you@example.com" inputMode="email" />
+                    <Field id="password" label="Password" type="password" value={form.password}
+                      onChange={set('password')} autoComplete="new-password" />
+                    <Field id="confirm" label="Confirm password" type="password" value={form.confirm}
+                      onChange={set('confirm')} autoComplete="new-password" />
+                    <SubmitButton busy={busy} label="Create account" />
+                    <p className="text-xs leading-relaxed text-ink/40">
+                      Accounts are created on this Hostinger site. Use the email you normally use for the ledger.
+                    </p>
                   </form>
-                )}
-
-                {/* external providers */}
-                {mode === 'signin' && providers.length > 0 && (
-                  <div className="mt-8">
-                    <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.06em] text-ink/40">
-                      <span className="h-px flex-1 bg-rule" />
-                      or continue with
-                      <span className="h-px flex-1 bg-rule" />
-                    </div>
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      {providers.map((p) => (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => signInWithProvider(p)}
-                          className="flex items-center justify-center gap-2 rounded-md border border-rule bg-card/70 px-3 py-2.5 text-sm capitalize text-ink/80 transition-all hover:border-ink/40 hover:bg-card hover:text-ink"
-                        >
-                          <ProviderIcon provider={p} />
-                          {p}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 )}
 
                 {mode === 'forgot' && (
@@ -369,6 +328,7 @@ export default function LoginPage() {
           </div>
 
           <p className="mt-6 text-center text-xs text-ink/40">
+<<<<<<< Updated upstream
             {SESSION_MODE ? (
               <>
                 Accounts are managed by an administrator. Passwords are stored as hashes on{' '}
@@ -379,6 +339,9 @@ export default function LoginPage() {
                 Secured by <span className="text-ink/60">Netlify Identity</span>
               </>
             )}
+=======
+            Account access is managed by this Hostinger site.
+>>>>>>> Stashed changes
           </p>
         </div>
       </main>

@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# Keep the existing Netlify Functions and Netlify Identity backend available
+# under the Hostinger site's same origin. This avoids browser CORS changes and
+# lets the existing GoTrue client continue to use `window.location.origin`.
+RewriteRule ^api(?:/(.*))?$ proxy.php?__proxy_path=/api/$1 [QSA,L,NE]
+RewriteRule ^\.netlify/identity(?:/(.*))?$ proxy.php?__proxy_path=/.netlify/identity/$1 [QSA,L,NE]
+
+# Vite's client-side routes fall back to the SPA entry point.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
