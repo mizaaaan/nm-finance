@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { apiRequest } from '../lib/api'
-import { PREVIEW_MODE } from '../lib/preview'
 
 // GET resource hook. Real API errors surface as { status: 'error' }; an
 // unreachable endpoint falls back to a clearly-labelled empty state via
@@ -14,18 +13,6 @@ export function useApi(path, { demo } = {}) {
   demoRef.current = demo
 
   useEffect(() => {
-    // Local review mode has no database behind it — show the clean empty state
-    // instead of a failed request. Dev builds only.
-    if (PREVIEW_MODE) {
-      setState({
-        status: 'ready',
-        data: demoRef.current ? demoRef.current() : null,
-        isDemo: true,
-        error: null
-      })
-      return
-    }
-
     let cancelled = false
     setState((s) => ({ ...s, status: 'loading', error: null }))
 

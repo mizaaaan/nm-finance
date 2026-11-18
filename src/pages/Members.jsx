@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import AppShell from '../components/AppShell'
 import Modal from '../components/Modal'
 import { Field, SelectField, ErrorBanner } from '../components/Field'
@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext'
 import { useApi } from '../hooks/useApi'
 import { apiRequest } from '../lib/api'
 import { demoMembers } from '../lib/demoData'
-import { SESSION_MODE } from '../lib/authMode'
 
 const EMPTY_FORM = { name: '', email: '', phone: '', role: 'member' }
 
@@ -154,12 +153,9 @@ export default function Members() {
         )}
       </div>
 
-      {SESSION_MODE && isAdmin && <SignInAccounts />}
-
       <p className="mt-8 text-xs leading-relaxed text-ink/40">
-        {SESSION_MODE
-          ? 'Members here are the group’s ledger participants — contributions and dividends are recorded against them. Sign-in accounts are separate, and are managed above.'
-          : 'Sign-in accounts are managed separately via Netlify Identity. Members here are the group’s ledger participants — contributions and dividends are recorded against them.'}
+        Sign-in accounts are managed separately via Netlify Identity. Members here are the group's
+        ledger participants — contributions and dividends are recorded against them.
       </p>
 
       {/* add modal */}
@@ -232,150 +228,5 @@ export default function Members() {
         </Modal>
       )}
     </AppShell>
-  )
-}
-
-// Self-hosted sign-in accounts (Hostinger build). Admins can read and edit;
-// everyone else reads. Separate from the member list above.
-function SignInAccounts() {
-  const [users, setUsers] = useState([])
-  const [error, setError] = useState(null)
-  const [status, setStatus] = useState('loading')
-  const [form, setForm] = useState({ name: '', email: '', password: '' })
-  const [busy, setBusy] = useState(false)
-
-  const load = useCallback(async () => {
-    try {
-      const data = await apiRequest('/api/users')
-      setUsers(data.users || [])
-      setStatus('ready')
-    } catch (err) {
-      setError(err.message)
-      setStatus('error')
-    }
-  }, [])
-
-  useEffect(() => {
-    load()
-  }, [load])
-
-  async function add(e) {
-    e.preventDefault()
-    setBusy(true)
-    setError(null)
-    try {
-      await apiRequest('/api/users', { method: 'POST', body: form })
-      setForm({ name: '', email: '', password: '' })
-      await load()
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function remove(user) {
-    setError(null)
-    try {
-      await apiRequest(`/api/users/${user.id}`, { method: 'DELETE' })
-      await load()
-    } catch (err) {
-      setError(err.message)
-    }
-  }
-
-  return (
-    <section className="mt-12 rounded-xl border border-rule bg-card/50 p-5">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div>
-          <p className="tabular text-[11px] font-semibold uppercase tracking-[0.06em] text-brass">Access</p>
-          <h2 className="font-display mt-1 text-lg text-ink">Sign-in accounts</h2>
-        </div>
-        <p className="tabular text-xs text-ink/40">{users.length} accounts</p>
-      </div>
-      <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink/55">
-        Admins can add and edit entries; everyone else can read the ledger and the records.
-        These logins are separate from the member list above.
-      </p>
-
-      {error && (
-        <p role="alert" className="mt-3 rounded-md border-l-2 border-loss bg-loss/5 px-3 py-2 text-xs text-loss">
-          {error}
-        </p>
-      )}
-
-      <ul className="mt-4 divide-y divide-rule/70 border-t border-rule">
-        {status === 'loading' ? (
-          <li className="py-3 text-sm text-ink/45">Loading accounts…</li>
-        ) : users.length === 0 ? (
-          <li className="py-3 text-sm text-ink/45">No accounts yet.</li>
-        ) : (
-          users.map((user) => (
-            <li key={user.id} className="flex items-center justify-between gap-3 py-2.5">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-ink">{user.email}</p>
-                <p className="text-[11px] text-ink/45">
-                  {user.name || 'No name'}
-                  {user.role === 'admin' ? ' · admin' : ' · read only'}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => remove(user)}
-                className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-ink/40 transition-colors hover:bg-loss/10 hover:text-loss"
-              >
-                Remove
-              </button>
-            </li>
-          ))
-        )}
-      </ul>
-
-      <form onSubmit={add} className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]">
-        <label className="sr-only" htmlFor="acct-name">
-          Name
-        </label>
-        <input
-          id="acct-name"
-          value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-          placeholder="Name"
-          className="rounded-md border border-rule bg-card/70 px-3 py-2 text-sm text-ink outline-none transition-colors placeholder:text-ink/30 focus:border-brass"
-        />
-        <label className="sr-only" htmlFor="acct-email">
-          Email
-        </label>
-        <input
-          id="acct-email"
-          type="email"
-          required
-          value={form.email}
-          onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-          placeholder="Email"
-          className="rounded-md border border-rule bg-card/70 px-3 py-2 text-sm text-ink outline-none transition-colors placeholder:text-ink/30 focus:border-brass"
-        />
-        <label className="sr-only" htmlFor="acct-password">
-          Password
-        </label>
-        <input
-          id="acct-password"
-          type="password"
-          required
-          minLength={8}
-          value={form.password}
-          onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-          placeholder="Password (8+ characters)"
-          autoComplete="new-password"
-          className="rounded-md border border-rule bg-card/70 px-3 py-2 text-sm text-ink outline-none transition-colors placeholder:text-ink/30 focus:border-brass"
-        />
-        <button
-          type="submit"
-          disabled={busy}
-          className="rounded-lg border border-transparent bg-brass px-4 py-2 text-sm font-medium text-navy transition-all hover:border-brass hover:bg-transparent hover:text-brass disabled:opacity-60"
-        >
-          {busy ? 'Adding…' : 'Add account'}
-        </button>
-      </form>
-    </section>
   )
 }

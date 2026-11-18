@@ -1,5 +1,4 @@
 import { auth } from './auth'
-import { SESSION_MODE } from './authMode'
 
 export class ApiError extends Error {
   constructor(message, status) {
@@ -33,12 +32,11 @@ async function readBody(res) {
 }
 
 export async function apiRequest(path, { method = 'GET', body } = {}) {
-  const token = SESSION_MODE ? null : await authToken()
+  const token = await authToken()
   let res
   try {
     res = await fetch(path, {
       method,
-      credentials: 'same-origin',
       headers: {
         ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {})

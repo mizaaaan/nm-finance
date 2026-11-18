@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { readUrlTokens } from '../lib/auth'
-import { SESSION_MODE } from '../lib/authMode'
 import Splash from '../components/Splash'
 import Spinner from '../components/Spinner'
 import ThemeToggle from '../components/ThemeToggle'
@@ -18,7 +17,6 @@ export default function LoginPage() {
   const {
     user,
     loading,
-    setupRequired,
     settings,
     notice,
     clearNotice,
@@ -32,9 +30,8 @@ export default function LoginPage() {
   } = useAuth()
 
   const urlTokens = useMemo(() => readUrlTokens(), [])
-  const initialSetup = SESSION_MODE && setupRequired
   const [mode, setMode] = useState(urlTokens.recoveryToken ? 'reset' : 'signin')
-  const [form, setForm] = useState({ email: '', password: '', confirm: '', name: '', newPassword: '', setupKey: '' })
+  const [form, setForm] = useState({ email: '', password: '', confirm: '', name: '', newPassword: '' })
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
   const [success, setSuccess] = useState(null)
@@ -72,18 +69,12 @@ export default function LoginPage() {
     e.preventDefault()
     if (!form.name.trim()) return setError('Enter your name.')
     if (!EMAIL_RE.test(form.email)) return setError('Enter a valid email address.')
-    if (form.password.length < (SESSION_MODE ? 8 : 6)) {
-      return setError(`Password must be at least ${SESSION_MODE ? 8 : 6} characters.`)
-    }
-    if (initialSetup && !form.setupKey.trim()) return setError('Enter the one-time setup key from Hostinger hPanel.')
+    if (form.password.length < 6) return setError('Password must be at least 6 characters.')
     if (form.password !== form.confirm) return setError('Passwords do not match.')
     setBusy(true)
     setError(null)
     try {
-      await signUp(form.email.trim(), form.password, {
-        full_name: form.name.trim(),
-        initial_admin_key: initialSetup ? form.setupKey.trim() : ''
-      })
+      await signUp(form.email.trim(), form.password, { full_name: form.name.trim() })
       if (!autoconfirm) {
         setSuccess(`Confirmation email sent to ${form.email.trim()}. Check your inbox to activate your account.`)
       }
@@ -128,7 +119,7 @@ export default function LoginPage() {
     }
   }
 
-  const identityUnreachable = !SESSION_MODE && !loading && settings === null
+  const identityUnreachable = !loading && settings === null
 
   return (
     <div className="relative min-h-dvh bg-paper lg:flex">
@@ -251,27 +242,25 @@ export default function LoginPage() {
               </form>
             ) : (
               <>
-                {/* tabs — sign-up and recovery are Netlify Identity features */}
-                {!SESSION_MODE && (
-                  <div className="mb-8 grid grid-cols-2 gap-1 rounded-xl border border-rule bg-card/60 p-1">
-                    {MODES.map((m) => (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onClick={() => switchMode(m.id)}
-                        className={`rounded-md px-3 py-2 text-sm font-medium transition-all ${
-                          mode === m.id
-                            ? 'bg-hero text-white shadow-sm'
-                            : 'text-ink/50 hover:text-ink'
-                        }`}
-                      >
-                        {m.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {/* tabs */}
+                <div className="mb-8 grid grid-cols-2 gap-1 rounded-xl border border-rule bg-card/60 p-1">
+                  {MODES.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => switchMode(m.id)}
+                      className={`rounded-md px-3 py-2 text-sm font-medium transition-all ${
+                        mode === m.id
+                          ? 'bg-hero text-white shadow-sm'
+                          : 'text-ink/50 hover:text-ink'
+                      }`}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
 
-                {mode === 'signin' && !initialSetup && (
+                {mode === 'signin' && (
                   <form onSubmit={handleSignIn} className="space-y-6">
                     <div>
                       <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">Welcome back</p>
@@ -282,29 +271,23 @@ export default function LoginPage() {
                     <div>
                       <Field id="password" label="Password" type="password" value={form.password}
                         onChange={set('password')} autoComplete="current-password" />
-                      {!SESSION_MODE && (
-                        <button
-                          type="button"
-                          onClick={() => switchMode('forgot')}
-                          className="mt-2 text-xs font-medium text-ink/50 underline decoration-rule underline-offset-4 transition hover:text-ink"
-                        >
-                          Forgot password?
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => switchMode('forgot')}
+                        className="mt-2 text-xs font-medium text-ink/50 underline decoration-rule underline-offset-4 transition hover:text-ink"
+                      >
+                        Forgot password?
+                      </button>
                     </div>
                     <SubmitButton busy={busy} label="Sign in" />
                   </form>
                 )}
 
-                {(mode === 'signup' || initialSetup) && (
+                {mode === 'signup' && (
                   <form onSubmit={handleSignUp} className="space-y-6">
                     <div>
-                      <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">
-                        {initialSetup ? 'One-time setup' : 'Join the ledger'}
-                      </p>
-                      <h2 className="font-display mt-1 text-2xl text-ink sm:text-3xl">
-                        {initialSetup ? 'Create the administrator account' : 'Open an account'}
-                      </h2>
+                      <p className="tabular text-[11px] uppercase tracking-[0.06em] text-brass">Join the ledger</p>
+                      <h2 className="font-display mt-1 text-2xl text-ink sm:text-3xl">Open an account</h2>
                     </div>
                     {settings?.disable_signup ? (
                       <p className="rounded-md border border-rule bg-paper px-3 py-2.5 text-sm text-ink/60">
@@ -314,10 +297,6 @@ export default function LoginPage() {
                       <>
                         <Field id="name" label="Name" value={form.name} onChange={set('name')}
                           autoComplete="name" placeholder="e.g. Ade Johnson" />
-                    {initialSetup && (
-                      <Field id="setupKey" label="One-time setup key" type="password" value={form.setupKey}
-                        onChange={set('setupKey')} autoComplete="off" />
-                    )}
                         <Field id="email" label="Email" type="email" value={form.email}
                           onChange={set('email')} autoComplete="email" placeholder="you@example.com" inputMode="email" />
                         <Field id="password" label="Password" type="password" value={form.password}
@@ -326,9 +305,7 @@ export default function LoginPage() {
                           onChange={set('confirm')} autoComplete="new-password" />
                         <SubmitButton busy={busy} label="Create account" />
                         <p className="text-xs leading-relaxed text-ink/40">
-                          {SESSION_MODE
-                            ? 'Use the one-time key from Hostinger hPanel. This first account becomes the administrator.'
-                            : autoconfirm
+                          {autoconfirm
                             ? 'Accounts on this site are activated automatically.'
                             : 'A confirmation email will be sent to activate your account.'}
                         </p>
@@ -387,16 +364,7 @@ export default function LoginPage() {
           </div>
 
           <p className="mt-6 text-center text-xs text-ink/40">
-            {SESSION_MODE ? (
-              <>
-                Accounts are managed by an administrator. Passwords are stored as hashes on{' '}
-                <span className="text-ink/60">your own server</span>.
-              </>
-            ) : (
-              <>
-                Secured by <span className="text-ink/60">Netlify Identity</span>
-              </>
-            )}
+            Secured by <span className="text-ink/60">Netlify Identity</span>
           </p>
         </div>
       </main>
