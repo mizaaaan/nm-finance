@@ -7,14 +7,10 @@ import {
   isAdminUser,
   readUrlTokens
 } from '../lib/auth'
-import { PREVIEW_MODE, PREVIEW_USER } from '../lib/preview'
-import { SESSION_MODE } from '../lib/authMode'
 
 const AuthContext = createContext(null)
 
-/* ── Netlify Identity (default deployment) ─────────────────── */
-
-function IdentityAuthProvider({ children }) {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [settings, setSettings] = useState(null)
@@ -31,14 +27,6 @@ function IdentityAuthProvider({ children }) {
     }
 
     async function init() {
-      // Local review mode: there is no Identity endpoint to talk to, so skip it
-      // entirely rather than collecting failed requests. Dev builds only.
-      if (PREVIEW_MODE) {
-        setUser(PREVIEW_USER)
-        setLoading(false)
-        return
-      }
-
       const tokens = readUrlTokens()
 
       // Email confirmation link → confirm + sign in
@@ -138,125 +126,6 @@ function IdentityAuthProvider({ children }) {
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-/* ── Self-hosted session auth (Hostinger build) ────────────── */
-
-// The server returns { id, email, name, role }; the rest of the app expects the
-// Netlify Identity user shape (user_metadata / app_metadata), so map it here.
-function toSessionUser(data) {
-  return {
-    id: data.id,
-    email: data.email,
-    user_metadata: { full_name: data.name || data.email },
-    app_metadata: { roles: data.role === 'admin' ? ['admin'] : [] }
-  }
-}
-
-function SessionAuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [notice, setNotice] = useState(null)
-  const [setupRequired, setSetupRequired] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-    Promise.all([
-      fetch('/api/auth/me', { headers: { Accept: 'application/json' } }),
-      fetch('/api/auth/status', { headers: { Accept: 'application/json' } })
-    ])
-      .then(async ([meResponse, statusResponse]) => {
-        const me = meResponse.ok ? await meResponse.json() : { user: null }
-        const status = statusResponse.ok ? await statusResponse.json() : { setupRequired: false }
-        if (!cancelled) {
-          setUser(me?.user ? toSessionUser(me.user) : null)
-          setSetupRequired(Boolean(status?.setupRequired))
-        }
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  const value = useMemo(
-    () => ({
-      user,
-      loading,
-      setupRequired,
-      settings: null,
-      notice,
-      providers: [],
-      autoconfirm: false,
-      isAdmin: isAdminUser(user),
-      clearNotice: () => setNotice(null),
-
-      signIn: async (email, password) => {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        })
-        const data = await res.json().catch(() => ({}))
-        if (!res.ok) throw new Error(data.error || 'Sign in failed.')
-        const next = toSessionUser(data.user)
-        setUser(next)
-        return next
-      },
-
-      signOut: async () => {
-        try {
-          await fetch('/api/auth/logout', { method: 'POST' })
-        } finally {
-          setUser(null)
-        }
-      },
-
-      signUp: async (email, password, metadata) => {
-        const res = await fetch('/api/auth/initial-admin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email,
-            password,
-            name: metadata?.full_name || '',
-            initialAdminKey: metadata?.initial_admin_key || ''
-          })
-        })
-        const data = await res.json().catch(() => ({}))
-        if (!res.ok) throw new Error(data.error || 'Initial account setup failed.')
-        const next = toSessionUser(data.user)
-        setUser(next)
-        setSetupRequired(false)
-        return next
-      },
-      sendRecovery: async () => {
-        throw new Error('Ask an administrator to reset your password.')
-      },
-      resetPassword: async () => {
-        throw new Error('Ask an administrator to reset your password.')
-      },
-      signInWithProvider: () => {
-        throw new Error('Social sign-in is not enabled on this site.')
-      }
-    }),
-    [user, loading, notice, setupRequired]
-  )
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-/* ── pick the provider for this build ──────────────────────── */
-
-export function AuthProvider({ children }) {
-  return SESSION_MODE ? (
-    <SessionAuthProvider>{children}</SessionAuthProvider>
-  ) : (
-    <IdentityAuthProvider>{children}</IdentityAuthProvider>
-  )
 }
 
 export function useAuth() {

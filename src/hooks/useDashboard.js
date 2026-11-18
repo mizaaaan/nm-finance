@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { demoData } from '../lib/demoData'
 import { authToken, ApiError } from '../lib/api'
-import { PREVIEW_MODE } from '../lib/preview'
 
 // Fetches /api/dashboard?month=YYYY-MM.
 //  • A real API error (4xx/5xx) is surfaced so deployment problems aren't hidden.
@@ -13,13 +12,6 @@ export function useDashboard(month) {
   const [tick, setTick] = useState(0)
 
   useEffect(() => {
-    // Local review mode has no database behind it — show the clean empty state
-    // instead of a failed request. Dev builds only.
-    if (PREVIEW_MODE) {
-      setState({ status: 'ready', data: demoData(month), isDemo: true, error: null })
-      return
-    }
-
     let cancelled = false
     const controller = new AbortController()
     // Generous timeout: Netlify cold starts can take several seconds, and an

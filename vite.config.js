@@ -8,13 +8,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    // Hosted dev previews reach this server through their own hostname. Allow the
-    // exact host(s) listed in VITE_ALLOWED_HOSTS (comma-separated), never a wildcard.
-    allowedHosts: process.env.VITE_ALLOWED_HOSTS
-      ? process.env.VITE_ALLOWED_HOSTS.split(',')
-          .map((host) => host.trim())
-          .filter(Boolean)
-      : undefined,
     proxy: {
       '/api': { target: 'http://localhost:8888', changeOrigin: true },
       '/.netlify': { target: 'http://localhost:8888', changeOrigin: true }

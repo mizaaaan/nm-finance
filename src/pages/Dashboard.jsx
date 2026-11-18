@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import AppShell from '../components/AppShell'
 import Modal from '../components/Modal'
 import StatCards from '../components/dashboard/StatCards'
@@ -10,7 +9,6 @@ import { useAuth } from '../context/AuthContext'
 import { useDashboard } from '../hooks/useDashboard'
 import { apiRequest } from '../lib/api'
 import { currentMonth, monthLabel, shiftMonth } from '../lib/format'
-import { PREVIEW_MODE } from '../lib/preview'
 
 export default function Dashboard() {
   const { isAdmin } = useAuth()
@@ -80,20 +78,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
-      {PREVIEW_MODE && (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brass/40 bg-brass/10 px-4 py-3">
-          <p className="text-sm text-ink/70">
-            Local preview — balances need the live database.
-          </p>
-          <Link
-            to="/documents"
-            className="text-sm font-medium text-ink underline decoration-brass decoration-2 underline-offset-4 transition-colors hover:text-ink-light"
-          >
-            Open the 2026 records
-          </Link>
-        </div>
-      )}
 
       {status === 'error' ? (
         <div className="mt-6 rounded-xl border border-loss/30 bg-loss/5 px-5 py-6 text-center">

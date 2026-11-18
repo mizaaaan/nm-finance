@@ -8,26 +8,6 @@ const compactFmt = new Intl.NumberFormat('en-NG', {
   maximumFractionDigits: 1
 })
 
-// Whole-dirham figures for the 2026 registers (no trailing zeros).
-const amountFmt = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 })
-const exactFmt = new Intl.NumberFormat('en-GB', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2
-})
-const profitFmt = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 })
-
-export function formatAmount(value) {
-  return amountFmt.format(Number(value) || 0)
-}
-
-export function formatExact(value) {
-  return exactFmt.format(Number(value) || 0)
-}
-
-export function formatProfit(value) {
-  return profitFmt.format(Number(value) || 0)
-}
-
 export function formatMoney(value) {
   return moneyFmt.format(Number(value) || 0)
 }

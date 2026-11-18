@@ -16,9 +16,7 @@ export default function MemberGrid({ members }) {
     <section className="mt-6">
       <div className="flex items-baseline justify-between">
         <h2 className="font-display text-xl text-ink">Members · investment vs dividends</h2>
-        <p className="tabular hidden text-xs text-ink/40 sm:block">
-          {members.length} member{members.length === 1 ? '' : 's'}
-        </p>
+        <p className="tabular hidden text-xs text-ink/40 sm:block">{members.length} members</p>
       </div>
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {members.map((m) => {
