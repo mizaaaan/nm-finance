@@ -28,15 +28,32 @@ if (!DB) {
   process.exit(1)
 }
 
-const sql = postgres(DB, { ssl: 'require', max: 1 })
+const sql = postgres(DB, { ssl: process.env.DATABASE_SSL === 'false' ? false : 'require', max: 1 })
 
 async function seed() {
+  // ── 0. Safety: this is a ONE-TIME import ─────────────────────────────
+  // It has no way to detect rows it already inserted, so running it twice would
+  // silently double every member, car and transaction. Refuse unless the
+  // database is empty (or you pass --force and accept the duplicates).
+  const [existing] = await sql`
+    SELECT (SELECT COUNT(*) FROM members)::int      AS members,
+           (SELECT COUNT(*) FROM cars)::int         AS cars,
+           (SELECT COUNT(*) FROM transactions)::int AS transactions
+  `
+  if ((existing.members || existing.cars || existing.transactions) && !process.argv.includes('--force')) {
+    console.error(
+      `Refusing to seed: the database already has ${existing.members} members, ` +
+        `${existing.cars} cars and ${existing.transactions} transactions.\n` +
+        'This script is a one-time import and would duplicate them. Re-run with --force only if you really want that.'
+    )
+    process.exit(1)
+  }
+
   // ── 1. Members ──────────────────────────────────────────────────────
   console.log('Creating members…')
   const [member] = await sql`
     INSERT INTO members (name, role, joined_date)
     VALUES ('Owners / Shareholders', 'admin', '2026-04-01')
-    ON CONFLICT (email) DO NOTHING
     RETURNING id
   `
   const memberId = member.id
@@ -177,6 +194,12 @@ async function seed() {
 }
 
 seed()
-  .then(() => { console.log('\n✓ Seed complete.'); process.exit(0) })
-  .catch((err) => { console.error('Seed failed:', err.message); process.exit(1) })
-  .finally(() => sql.end().catch(() => {}))
+  .then(async () => {
+    console.log('\n✓ Seed complete.')
+    await sql.end()
+  })
+  .catch(async (err) => {
+    console.error('Seed failed:', err.message)
+    await sql.end().catch(() => {})
+    process.exit(1)
+  })

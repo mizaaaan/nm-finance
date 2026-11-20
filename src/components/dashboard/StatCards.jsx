@@ -1,7 +1,9 @@
-import { formatMoney, formatCompact } from '../../lib/format'
+import { formatMoney, formatCompact, monthLabel } from '../../lib/format'
 
 export default function StatCards({ data }) {
   const { balance, monthly } = data
+  // Name the month actually being shown (the picker can browse past months).
+  const label = data.month ? monthLabel(data.month) : 'this month'
   const prevMonthMonthly = data.trend[data.trend.length - 2]
   const prevNet = prevMonthMonthly ? prevMonthMonthly.inflow - prevMonthMonthly.outflow : null
   const delta = prevNet === null || prevNet === 0 ? null : ((monthly.net - prevNet) / Math.abs(prevNet)) * 100
@@ -14,18 +16,18 @@ export default function StatCards({ data }) {
       accent: true
     },
     {
-      label: 'Net · this month',
+      label: `Net · ${label}`,
       value: monthly.net,
       sub: delta === null ? 'vs previous month' : `vs previous month ${delta >= 0 ? '+' : ''}${delta.toFixed(1)}%`,
       positive: (monthly.net ?? 0) >= 0
     },
     {
-      label: 'Income · this month',
+      label: `Income · ${label}`,
       value: monthly.income + monthly.contributions,
       sub: `Rent ${formatCompact(monthly.income)} + contributions ${formatCompact(monthly.contributions)}`
     },
     {
-      label: 'Expenses · this month',
+      label: `Expenses · ${label}`,
       value: monthly.expenses,
       sub: `Dividends paid ${formatCompact(monthly.dividends)}`,
       positive: false

@@ -1,9 +1,13 @@
-const moneyFmt = new Intl.NumberFormat('en-NG', {
+// Numbers use US-style grouping (1,234.50). Currency is intentionally not shown:
+// the ledger is single-currency and the unit is whatever the company books in.
+const NUMBER_LOCALE = 'en-US'
+
+const moneyFmt = new Intl.NumberFormat(NUMBER_LOCALE, {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2
 })
 
-const compactFmt = new Intl.NumberFormat('en-NG', {
+const compactFmt = new Intl.NumberFormat(NUMBER_LOCALE, {
   notation: 'compact',
   maximumFractionDigits: 1
 })

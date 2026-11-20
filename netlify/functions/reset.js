@@ -1,33 +1,41 @@
-import postgres from 'postgres'
-import { requireAdmin } from './_shared/auth.js'
+import { authorize } from './_shared/auth.js'
+import { withDb } from './_shared/db.js'
+import { resetEnabled } from './_shared/features.js'
+import { json, readJson } from './_shared/http.js'
 
-const CONNECTION_STRING = process.env.NETLIFY_DB_URL || process.env.DATABASE_URL
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
-  })
-
-// Permanently wipes every member, car, and transaction (and resets their
-// auto-increment counters) so the company can start fresh. Admin only —
-// there is no undo.
+// POST /api/reset — permanently wipes every member, car and transaction (and
+// restarts their id counters). There is no undo, so three things must all hold:
+//   1. the site owner switched it on (env ENABLE_DATA_RESET=true — off by default),
+//   2. the caller is an admin,
+//   3. the request body carries { "confirm": "RESET" }.
+// Every wipe is logged (who, when) in the Netlify function logs.
 export default async (req, context) => {
-  if (req.method !== 'POST') return json({ error: 'Use POST /api/reset' }, 405)
-  const denied = await requireAdmin(req, context)
+  if (req.method !== 'POST') return json({ error: 'Use POST /api/reset.' }, 405)
+
+  const { response: denied, user } = await authorize(req, context, 'admin')
   if (denied) return denied
 
-  if (!CONNECTION_STRING) return json({ error: 'Database not configured.' }, 500)
-
-  const sql = postgres(CONNECTION_STRING, { ssl: 'require', max: 1 })
-  try {
-    await sql`TRUNCATE TABLE transactions, cars, members RESTART IDENTITY CASCADE`
-    return json({ ok: true })
-  } catch (error) {
-    return json({ error: error.message }, 500)
-  } finally {
-    await sql.end().catch(() => {})
+  if (!resetEnabled()) {
+    return json(
+      {
+        error:
+          'Resetting all data is switched off on this site. The site owner can enable it by setting ENABLE_DATA_RESET=true.'
+      },
+      403
+    )
   }
+
+  const parsed = await readJson(req)
+  if (parsed.response) return parsed.response
+  if (parsed.body.confirm !== 'RESET') {
+    return json({ error: 'Send { "confirm": "RESET" } to confirm that all data should be deleted.' }, 400)
+  }
+
+  return withDb(async (sql) => {
+    await sql`TRUNCATE TABLE transactions, cars, members RESTART IDENTITY CASCADE`
+    console.warn(`[reset] ALL DATA WIPED by ${user.email} at ${new Date().toISOString()}`)
+    return json({ ok: true })
+  }, 'api/reset')
 }
 
 export const config = { path: '/api/reset' }

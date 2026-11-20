@@ -124,22 +124,27 @@ export default function TrendChart({ data, month }) {
       <div className="flex flex-col gap-4">
         <div className="rounded-xl border border-rule bg-card/70 p-5">
           <p className="tabular text-[11px] uppercase tracking-[0.06em] text-ink/45">
-            This month · breakdown
+            {monthLabel(month)} · breakdown
           </p>
           <ul className="mt-4 space-y-3">
-            {breakdown.map((row) => (
-              <li key={row.label} className="flex items-baseline justify-between gap-3">
-                <span className="text-sm text-ink/60">{row.label}</span>
-                <span
-                  className={`tabular text-sm font-medium ${
-                    row.tone === 'gain' ? 'text-gain' : 'text-loss'
-                  }`}
-                >
-                  {row.tone === 'gain' ? '' : '−'}
-                  {formatMoney(row.value)}
-                </span>
-              </li>
-            ))}
+            {breakdown.map((row) => {
+              // A zero is just "0.00" — no minus sign, no red.
+              const isZero = !Number(row.value)
+              const isLoss = row.tone !== 'gain' && !isZero
+              return (
+                <li key={row.label} className="flex items-baseline justify-between gap-3">
+                  <span className="text-sm text-ink/60">{row.label}</span>
+                  <span
+                    className={`tabular text-sm font-medium ${
+                      isZero ? 'text-ink/45' : isLoss ? 'text-loss' : 'text-gain'
+                    }`}
+                  >
+                    {isLoss ? '−' : ''}
+                    {formatMoney(row.value)}
+                  </span>
+                </li>
+              )
+            })}
             <li className="flex items-baseline justify-between gap-3 border-t border-rule pt-3">
               <span className="text-sm font-medium text-ink/70">Net for the month</span>
               <span

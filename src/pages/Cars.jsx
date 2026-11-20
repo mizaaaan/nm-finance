@@ -211,7 +211,7 @@ export default function Cars() {
               </p>
             )}
             <Field label="Name" id="c-name" value={form.name} onChange={set('name')} placeholder="e.g. Toyota Camry — Silver" required />
-            <Field label="Registration no." id="c-reg" value={form.registration_no} onChange={set('registration_no')} placeholder="e.g. LAG 123 XYZ" />
+            <Field label="Registration no." id="c-reg" value={form.registration_no} onChange={set('registration_no')} placeholder="Plate number (optional)" />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Purchase price" id="c-price" type="number" step="0.01" min="0" value={form.purchase_price} onChange={set('purchase_price')} />
               <Field label="Purchase date" id="c-date" type="date" value={form.purchase_date} onChange={set('purchase_date')} />

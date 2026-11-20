@@ -11,7 +11,7 @@ import { apiRequest } from '../lib/api'
 import { currentMonth, monthLabel, shiftMonth } from '../lib/format'
 
 export default function Dashboard() {
-  const { isAdmin } = useAuth()
+  const { isAdmin, features } = useAuth()
   const today = currentMonth()
   const [month, setMonth] = useState(today)
   const { data, status, isDemo, error, refetch } = useDashboard(month)
@@ -26,7 +26,7 @@ export default function Dashboard() {
     setResetBusy(true)
     setResetError(null)
     try {
-      await apiRequest('/api/reset', { method: 'POST' })
+      await apiRequest('/api/reset', { method: 'POST', body: { confirm: resetConfirm } })
       setResetOpen(false)
       setResetConfirm('')
       setResetDone(true)
@@ -137,8 +137,9 @@ export default function Dashboard() {
         </>
       )}
 
-      {/* danger zone — wipe everything and start fresh for the company */}
-      {isAdmin && (
+      {/* danger zone — only shown when the site owner has switched reset on
+          (ENABLE_DATA_RESET=true); the server refuses the request otherwise */}
+      {isAdmin && features.reset && (
         <section className="mt-12 rounded-xl border border-loss/25 bg-loss/5 p-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="min-w-0">
