@@ -1,34 +1,16 @@
-import postgres from 'postgres'
-import { requireUser } from './_shared/auth.js'
-
-// Netlify DB (built-in Postgres) connection string is injected automatically.
-// `netlify database status --show-credentials` reveals it locally.
-const CONNECTION_STRING = process.env.NETLIFY_DB_URL || process.env.DATABASE_URL
-
-const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
-  })
+import { authorize } from './_shared/auth.js'
+import { withDb } from './_shared/db.js'
+import { json } from './_shared/http.js'
+import { MONTH_RE } from './_shared/validate.js'
 
 const num = (value) => Number(value) || 0
 
 export default async (req, context) => {
-  // Only signed-in users may read the dashboard.
-  const denied = await requireUser(req, context)
+  // Only approved accounts (admin or member) may read the dashboard.
+  const { response: denied } = await authorize(req, context, 'read')
   if (denied) return denied
 
-  if (!CONNECTION_STRING) {
-    return json(
-      {
-        error:
-          'Database not configured. Provision Netlify DB (netlify database) and retry — the NETLIFY_DB_URL env var is injected automatically.'
-      },
-      500
-    )
-  }
+  if (req.method !== 'GET') return json({ error: 'Method not allowed.' }, 405)
 
   // Default to the current calendar month, e.g. 2026-07
   const now = new Date()
@@ -36,9 +18,7 @@ export default async (req, context) => {
   const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   const month = MONTH_RE.test(requested) ? requested : defaultMonth
 
-  const sql = postgres(CONNECTION_STRING, { ssl: 'require', max: 1 })
-
-  try {
+  return withDb(async (sql) => {
     // All-time company cash balance. Liability/receivable rows move real cash
     // (a deposit received, a driver repaying an accident cost) but are NOT
     // income or expense — the categories below say which side of the ledger
@@ -181,16 +161,7 @@ export default async (req, context) => {
       })),
       cars: cars.map((row) => ({ status: row.status, count: row.count }))
     })
-  } catch (error) {
-    return json(
-      {
-        error: 'Dashboard query failed. Is the schema (db/schema.sql) applied? ' + error.message
-      },
-      500
-    )
-  } finally {
-    await sql.end().catch(() => {})
-  }
+  }, 'api/dashboard')
 }
 
 export const config = { path: '/api/dashboard' }

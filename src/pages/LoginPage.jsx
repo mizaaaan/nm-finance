@@ -69,7 +69,7 @@ export default function LoginPage() {
     e.preventDefault()
     if (!form.name.trim()) return setError('Enter your name.')
     if (!EMAIL_RE.test(form.email)) return setError('Enter a valid email address.')
-    if (form.password.length < 6) return setError('Password must be at least 6 characters.')
+    if (form.password.length < 8) return setError('Password must be at least 8 characters.')
     if (form.password !== form.confirm) return setError('Passwords do not match.')
     setBusy(true)
     setError(null)
@@ -103,7 +103,7 @@ export default function LoginPage() {
 
   async function handleReset(e) {
     e.preventDefault()
-    if (form.newPassword.length < 6) return setError('Password must be at least 6 characters.')
+    if (form.newPassword.length < 8) return setError('Password must be at least 8 characters.')
     if (form.newPassword !== form.confirm) return setError('Passwords do not match.')
     setBusy(true)
     setError(null)
@@ -296,7 +296,7 @@ export default function LoginPage() {
                     ) : (
                       <>
                         <Field id="name" label="Name" value={form.name} onChange={set('name')}
-                          autoComplete="name" placeholder="e.g. Ade Johnson" />
+                          autoComplete="name" placeholder="Your full name" />
                         <Field id="email" label="Email" type="email" value={form.email}
                           onChange={set('email')} autoComplete="email" placeholder="you@example.com" inputMode="email" />
                         <Field id="password" label="Password" type="password" value={form.password}
@@ -307,7 +307,8 @@ export default function LoginPage() {
                         <p className="text-xs leading-relaxed text-ink/40">
                           {autoconfirm
                             ? 'Accounts on this site are activated automatically.'
-                            : 'A confirmation email will be sent to activate your account.'}
+                            : 'A confirmation email will be sent to activate your account.'}{' '}
+                          An administrator must also approve your account before you can see any data.
                         </p>
                       </>
                     )}

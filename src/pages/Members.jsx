@@ -170,7 +170,7 @@ export default function Members() {
             )}
             <Field label="Name" id="m-name" value={form.name} onChange={set('name')} required />
             <Field label="Email" id="m-email" type="email" value={form.email} onChange={set('email')} />
-            <Field label="Phone" id="m-phone" value={form.phone} onChange={set('phone')} placeholder="e.g. 0803 123 4567" />
+            <Field label="Phone" id="m-phone" value={form.phone} onChange={set('phone')} placeholder="Optional" />
             <SelectField
               label="Role"
               id="m-role"
@@ -205,8 +205,9 @@ export default function Members() {
       {deleting && (
         <Modal title="Delete member" onClose={() => setDeleting(null)}>
           <p className="text-sm text-ink/70">
-            Delete <span className="font-medium text-ink">{deleting.name}</span>? Their transaction
-            history stays but is no longer linked.
+            Delete <span className="font-medium text-ink">{deleting.name}</span>? This is only allowed
+            for members with no contributions or dividends on record — those entries are their
+            investment history and are never left without an owner.
           </p>
           <div className="mt-6 flex justify-end gap-3">
             <button

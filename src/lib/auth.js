@@ -11,19 +11,9 @@ export const auth = new GoTrue({
 
 export const EXTERNAL_PROVIDERS = ['google', 'github', 'gitlab', 'bitbucket', 'facebook']
 
-// Accounts that always have admin power, even without a Netlify Identity role.
-// Keep in sync with the default list in netlify/functions/_shared/auth.js, and
-// add more there (or via the ADMIN_EMAILS env var / dashboard roles).
-export const ADMIN_EMAILS = ['md.mizan235@gmail.com']
-
-// True when this signed-in user may edit data. Non-admins are read-only;
-// the server enforces the same rule independently of this helper.
-export function isAdminUser(user) {
-  if (!user) return false
-  const roles = user.app_metadata?.roles
-  if (Array.isArray(roles) && roles.includes('admin')) return true
-  return ADMIN_EMAILS.includes(String(user.email || '').toLowerCase())
-}
+// Who may do what is decided by the SERVER (GET /api/me). The browser never
+// keeps its own list of admins — it only shows or hides buttons based on the
+// server's answer, and the server re-checks every request regardless.
 
 // Which OAuth providers are switched on in the Netlify dashboard (if any).
 export function enabledProviders(settings) {

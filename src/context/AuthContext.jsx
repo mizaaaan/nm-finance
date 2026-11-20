@@ -1,20 +1,31 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
   auth,
   clearUrlTokens,
   createUserFromOAuthHash,
   enabledProviders,
-  isAdminUser,
   readUrlTokens
 } from '../lib/auth'
+import { ApiError, apiRequest, setUnauthorizedHandler } from '../lib/api'
 
 const AuthContext = createContext(null)
+
+const NO_FEATURES = { reset: false }
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [settings, setSettings] = useState(null)
   const [notice, setNotice] = useState(null)
+
+  // What the SERVER says this account may do (GET /api/me):
+  //   access: 'admin' (read + write) | 'member' (read only) | 'none' (not approved yet)
+  //   accessStatus: 'idle' (signed out) | 'loading' | 'ready' | 'error'
+  const [access, setAccess] = useState(null)
+  const [features, setFeatures] = useState(NO_FEATURES)
+  const [accessStatus, setAccessStatus] = useState('idle')
+  const [accessError, setAccessError] = useState(null)
+  const [accessTick, setAccessTick] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -72,6 +83,53 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  // The API rejected our session (expired / revoked): sign out locally and say why.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setUser(null)
+      setNotice({ tone: 'error', message: 'Your session has expired. Please sign in again.' })
+      try {
+        auth.currentUser()?.clearSession?.()
+      } catch {
+        /* nothing to clear */
+      }
+    })
+    return () => setUnauthorizedHandler(null)
+  }, [])
+
+  // Ask the server what this account may do whenever the signed-in user changes.
+  useEffect(() => {
+    if (!user) {
+      setAccess(null)
+      setFeatures(NO_FEATURES)
+      setAccessStatus('idle')
+      setAccessError(null)
+      return undefined
+    }
+    let cancelled = false
+    setAccessStatus('loading')
+    setAccessError(null)
+    apiRequest('/api/me')
+      .then((me) => {
+        if (cancelled) return
+        setAccess(me.access)
+        setFeatures({ ...NO_FEATURES, ...(me.features || {}) })
+        setAccessStatus('ready')
+      })
+      .catch((err) => {
+        if (cancelled) return
+        if (err instanceof ApiError && err.status === 401) return // handled by the unauthorized handler
+        setAccess(null)
+        setAccessError(err.message)
+        setAccessStatus('error')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [user, accessTick])
+
+  const retryAccess = useCallback(() => setAccessTick((t) => t + 1), [])
+
   const value = useMemo(
     () => ({
       user,
@@ -80,7 +138,13 @@ export function AuthProvider({ children }) {
       notice,
       providers: enabledProviders(settings),
       autoconfirm: Boolean(settings?.autoconfirm),
-      isAdmin: isAdminUser(user),
+      access,
+      accessStatus,
+      accessError,
+      retryAccess,
+      features,
+      // Admin = may add / edit / delete. Decided by the server, not the browser.
+      isAdmin: access === 'admin',
       clearNotice: () => setNotice(null),
 
       signIn: async (email, password) => {
@@ -122,7 +186,7 @@ export function AuthProvider({ children }) {
         window.location.assign(auth.loginExternalUrl(provider))
       }
     }),
-    [user, loading, settings, notice]
+    [user, loading, settings, notice, access, accessStatus, accessError, retryAccess, features]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
